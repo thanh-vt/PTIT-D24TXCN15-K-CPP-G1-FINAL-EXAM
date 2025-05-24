@@ -11,11 +11,13 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 set(SOURCES
         src/main.cpp
         src/ui.cpp
+        src/database.cpp
 )
 
 # Add header files
 set(HEADERS
         include/ui.h
+        include/database.hpp
 )
 
 # Create executable
