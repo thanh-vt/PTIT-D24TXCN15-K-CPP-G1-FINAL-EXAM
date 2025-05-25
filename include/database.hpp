@@ -79,25 +79,9 @@ private:
 
     // Cac ham ho tro thao tac file
     bool isFileModified() const; // Kiem tra file co bi sua doi
-    uint32_t calculateCRC32(const char* data, size_t length) const; // Tinh checksum
+    uint32_t calculateSimpleChecksum(const char* data, size_t length) const; // Tinh checksum don gian
 
-    // Cac ham serialize admin data
-    void serializeAdminUser(std::ostream& file, const AdminUser& user) const;
-    void serializeAdminWallet(std::ostream& file, const AdminWallet& wallet) const;
-    void serializeAdminTransaction(std::ostream& file, const AdminTransaction& transaction) const;
-
-    // Cac ham deserialize admin data
-    AdminUser deserializeAdminUser(std::istream& file) const;
-    AdminWallet deserializeAdminWallet(std::istream& file) const;
-    AdminTransaction deserializeAdminTransaction(std::istream& file) const;
-
-    // Ham ho tro serialize chuoi
-    void writeString(std::ofstream& file, const std::string& str) const; // Ghi chuoi
-    std::string readString(std::ifstream& file) const; // Doc chuoi
-
-    // Ham ho tro serialize thoi gian
-    void writeTimePoint(std::ofstream& file, const std::chrono::system_clock::time_point& timePoint) const; // Ghi thoi gian
-    std::chrono::system_clock::time_point readTimePoint(std::ifstream& file) const; // Doc thoi gian
+    // Cac ham serialize/deserialize cu da duoc loai bo vi su dung dinh dang van ban don gian
 
 public:
     // Truy cap Singleton
