@@ -47,3 +47,13 @@ _deps
 CMakeUserPresets.json
 
 /cmake-build-debug/
+
+# Project specific
+*.dat
+database.dat
+*_backup_*
+backups/
+test_backups/
+test_*
+*_test.*
+build/
