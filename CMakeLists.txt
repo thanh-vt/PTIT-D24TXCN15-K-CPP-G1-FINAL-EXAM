@@ -28,3 +28,9 @@ target_include_directories(ewallet_manager PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+# Create test executable
+add_executable(test_admin test_admin.cpp src/database.cpp)
+target_include_directories(test_admin PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+

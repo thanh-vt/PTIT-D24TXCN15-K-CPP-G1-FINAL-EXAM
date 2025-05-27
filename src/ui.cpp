@@ -8,6 +8,7 @@
 #include <chrono>
 
 #ifdef _WIN32
+#define NOMINMAX
 #include <windows.h>
 #else
 #include <cstdlib>
@@ -23,16 +24,17 @@ UI::UI() : is_admin_logged_in_(false) {}
 UI::~UI() {}
 
 void UI::start() {
-    // Database is already loaded by the Database singleton constructor
-    // No need to load it again here
+    // Load database and create default admin
+    Database& db = Database::getInstance();
+    db.loadFromFile();
+    db.createDefaultAdminUser();
 
     while (true) {
         clearScreen();
         std::cout << "=== E-Wallet Management System ===\n\n";
-        std::cout << "1. User Login\n";
-        std::cout << "2. User Register\n";
-        std::cout << "3. Admin Login\n";
-        std::cout << "4. Exit\n\n";
+        std::cout << "1. Login\n";
+        std::cout << "2. Register\n";
+        std::cout << "3. Exit\n\n";
         std::cout << "Enter your choice: ";
 
         int choice;
@@ -41,23 +43,49 @@ void UI::start() {
 
         switch (choice) {
             case 1:
-                std::cout << "User login not implemented yet.\n";
-                waitForEnter();
+                handleLogin();
                 break;
             case 2:
-                std::cout << "User register not implemented yet.\n";
-                waitForEnter();
+                handleRegister();
                 break;
             case 3:
-                showAdminLoginScreen();
-                break;
-            case 4:
                 return;
             default:
                 std::cout << "Invalid choice. Please try again.\n";
                 waitForEnter();
         }
     }
+}
+
+void UI::handleLogin() {
+    showHeader("Login");
+
+    std::string username = getInput("Username: ");
+    std::string password = getPassword("Password: ");
+
+    Database& db = Database::getInstance();
+
+    // Check if admin login
+    if (username == "admin" && password == "admin") {
+        if (db.authenticateAdmin(username, password)) {
+            current_admin_username_ = username;
+            is_admin_logged_in_ = true;
+            showSuccess("Admin login successful!");
+            waitForEnter();
+            showAdminMenu();
+        } else {
+            showError("Admin authentication failed!");
+            waitForEnter();
+        }
+    } else {
+        showError("User login not implemented yet. Use admin/admin for admin access.");
+        waitForEnter();
+    }
+}
+
+void UI::handleRegister() {
+    showError("User registration not implemented yet.");
+    waitForEnter();
 }
 
 void UI::showMainMenu() {

@@ -11,6 +11,10 @@ public:
     void start();
     void showMainMenu();
 
+    // Login and authentication
+    void handleLogin();
+    void handleRegister();
+
     // Admin functions
     void showAdminLoginScreen(); // Hien thi man hinh dang nhap admin
     void showAdminMenu(); // Hien thi menu admin chinh

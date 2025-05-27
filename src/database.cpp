@@ -60,7 +60,7 @@ bool Database::createDefaultAdminUser() {
         std::cerr << "Creating default admin user..." << std::endl;
 
         // Create admin user
-        auto adminUser = std::make_shared<AdminUser>("admin", "admin123", "System Administrator", "1990-01-01", true);
+        auto adminUser = std::make_shared<AdminUser>("admin", "admin", "System Administrator", "1990-01-01", true);
         users_["admin"] = adminUser;
 
         // Create admin wallet
