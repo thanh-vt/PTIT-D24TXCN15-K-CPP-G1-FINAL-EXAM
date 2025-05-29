@@ -57,3 +57,6 @@ test_backups/
 test_*
 *_test.*
 build/
+
+# Visual studio code settings
+.vscode
