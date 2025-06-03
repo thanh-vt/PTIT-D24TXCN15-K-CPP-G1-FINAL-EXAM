@@ -1,139 +1,206 @@
-# Dự án: Hệ thống Quản lý Ví điện tử (E-Wallet Management System) - Bài tập lớn môn Ngôn ngữ C++
+# 🏦 Hệ thống đăng nhập và đăng ký tài khoản và quản lý ví điểm thưởng
 
-## 1. Giới thiệu dự án
+**Bài tập lớn môn Ngôn ngữ C++ - Lớp D24TXCN15-K - Nhóm 1**
 
-Dự án này là một hệ thống quản lý ví điện tử dòng lệnh, được phát triển bằng ngôn ngữ C++. Hệ thống cung cấp đầy đủ các chức năng quản lý tài khoản người dùng (đăng ký, đăng nhập), xác thực hai yếu tố (2FA), và các nghiệp vụ ví cốt lõi bao gồm xem số dư, lịch sử giao dịch và thực hiện chuyển điểm an toàn. Dự án được hoàn thành trong khuôn khổ bài tập lớn môn học Ngôn ngữ C++, thể hiện việc áp dụng thành thạo kiến thức về lập trình C++, cấu trúc dữ liệu, quản lý file và các nguyên tắc bảo mật quan trọng trong phát triển phần mềm.
+## 📋 Giới thiệu dự án
 
-## 2. Thành viên tham gia dự án và Phân công công việc
+Hệ thống quản lý ví điện tử được phát triển bằng C++ với giao diện dòng lệnh, cung cấp đầy đủ các chức năng quản lý tài khoản người dùng và ví điểm thưởng. Dự án được thiết kế theo yêu cầu đề bài với các tính năng:
 
-Dự án được hoàn thành với sự đóng góp và nỗ lực của các thành viên trong nhóm, mỗi người phụ trách các mảng công việc chuyên biệt, đồng thời phối hợp chặt chẽ để đảm bảo tính nhất quán và chất lượng của sản phẩm cuối cùng.
+- 🔐 **Hệ thống đăng nhập và đăng ký**: Tạo tài khoản, xác thực người dùng
+- 👤 **Quản lý tài khoản**: Thông tin cá nhân, thay đổi mật khẩu, OTP
+- 💰 **Quản lý ví điểm thưởng**: Chuyển điểm, theo dõi giao dịch
+- 🛡️ **Hệ thống Admin**: Quản trị toàn bộ hệ thống
+- 💾 **Lưu trữ dữ liệu**: File database với checksum bảo mật
 
-* **Nguyễn Viết Tùng - K24DTCN633 - Phụ trách chính: Admin Core Functions & Database Logic**
-    * Phát triển và hoàn thiện các chức năng quản trị:
-        * Tạo tài khoản người dùng mới, bao gồm chức năng admin tạo hộ và sinh mật khẩu tự động.
-        * Theo dõi và quản lý danh sách người dùng.
-        * Điều chỉnh thông tin tài khoản người dùng theo yêu cầu, có xác thực OTP đầy đủ.
-    * Xây dựng và tối ưu hóa logic đọc/ghi dữ liệu, serialization/deserialization trong `database.cpp`.
-    * Triển khai cơ chế sao lưu và phục hồi dữ liệu hiệu quả.
-    * Đảm bảo tính toàn vẹn dữ liệu với cơ chế checksum mạnh mẽ cho `database.dat`.
+## 👥 Thành viên nhóm và phân công công việc
 
-* **Nguyễn Việt - *(Điền mã sinh viên)* - Phụ trách chính: User Core Functions & Security Implementation**
-    * Phát triển và hoàn thiện các chức năng cốt lõi cho người dùng thông thường:
-        * Đăng ký tài khoản an toàn.
-        * Hệ thống đăng nhập bảo mật, bao gồm xử lý yêu cầu đổi mật khẩu tự sinh trong lần đầu.
-        * Thay đổi mật khẩu cá nhân với các bước xác thực cần thiết.
-        * Truy xuất và điều chỉnh thông tin cá nhân, được bảo vệ bằng OTP.
-    * Chịu trách nhiệm về thiết kế và mã hóa lớp `User` trong `user.cpp`.
-    * Triển khai cơ chế băm mật khẩu an toàn sử dụng SHA-256 (hoặc thuật toán mạnh hơn) kết hợp với salt ngẫu nhiên cho từng người dùng.
-    * Tích hợp và quản lý xác thực hai yếu tố (2FA) bằng TOTP cho các thao tác quan trọng.
+| STT | Họ và tên | Mã sinh viên | Công việc được giao |
+|-----|-----------|--------------|---------------------|
+| 1 | **Vũ Tất Thành** | K24DTCN638 | Thiết kế UI, giao diện người dùng, kiểm thử chất lượng |
+| 2 | **Nguyễn Quang Đạo** | K24DTCN--- | Phát triển chức năng đăng nhập/đăng ký, quản lý session |
+| 3 | **Nguyễn Việt** | K24DTCN--- | Thiết kế hệ thống ví điện tử, xử lý giao dịch |
+| 4 | **Nguyễn Viết Tùng** | K24DTCN633 | Thiết kế database, hệ thống admin, tích hợp tổng thể |
 
-* **Nguyễn Quang Đạo - *(Điền mã sinh viên)* - Phụ trách chính: Wallet Core Functions & Transaction Integrity**
-    * Phát triển và hoàn thiện các chức năng nghiệp vụ của ví điện tử:
-        * Quản lý số dư ví chính xác.
-        * Thực hiện giao dịch chuyển điểm an toàn và đáng tin cậy giữa các ví.
-        * Đảm bảo tính không tách rời (atomic) cho các giao dịch chuyển điểm, với cơ chế rollback hoàn chỉnh.
-        * Ghi nhận đầy đủ và chính xác lịch sử giao dịch.
-        * Cung cấp chức năng cho người dùng xem số dư và chi tiết lịch sử giao dịch.
-    * Chịu trách nhiệm về thiết kế và mã hóa lớp `Wallet` trong `wallet.cpp`.
-    * Tích hợp thành công OTP vào quy trình xác nhận giao dịch chuyển điểm.
+### 📋 Chi tiết công việc thực hiện
 
-* **Vũ Tất Thành - K24DTCN638 - Phụ trách chính: UI (Giao diện người dùng CLI) & Quality Assurance**
-    * Thiết kế và triển khai toàn bộ giao diện người dùng dòng lệnh (CLI) trực quan và dễ sử dụng.
-    * Tối ưu hóa luồng tương tác người dùng, đảm bảo trải nghiệm người dùng tốt nhất có thể với giao diện CLI.
-    * Xử lý hiệu quả việc nhập liệu từ người dùng và hiển thị thông tin phản hồi một cách rõ ràng.
-    * Chịu trách nhiệm về thiết kế và mã hóa lớp `UI` trong `ui.cpp`.
-    * Xây dựng và thực thi kế hoạch kiểm thử toàn diện (bao gồm unit test và kiểm thử tích hợp) cho tất cả các module của dự án.
-    * Đảm bảo chất lượng tổng thể của sản phẩm thông qua việc kiểm thử chéo và phối hợp chặt chẽ với các thành viên.
+**Vũ Tất Thành:**
+- Thiết kế giao diện dòng lệnh (CLI) cho toàn bộ hệ thống
+- Xử lý input/output và điều hướng menu
+- Kiểm thử và đảm bảo chất lượng sản phẩm
+- Tối ưu hóa trải nghiệm người dùng
+
+**Nguyễn Quang Đạo:**
+- Phát triển module đăng nhập và đăng ký tài khoản
+- Xử lý xác thực người dùng và quản lý session
+- Tích hợp bảo mật cho hệ thống đăng nhập
+
+**Nguyễn Việt:**
+- Thiết kế và phát triển hệ thống ví điểm thưởng
+- Xử lý giao dịch chuyển điểm giữa các ví
+- Đảm bảo tính atomic của các giao dịch
+
+**Nguyễn Viết Tùng:**
+- Thiết kế kiến trúc database và hệ thống lưu trữ
+- Phát triển đầy đủ chức năng admin
+- Tích hợp các module và đảm bảo hoạt động tổng thể
+- Backup/restore và bảo mật dữ liệu
 
 
-## 3. Các chức năng chính (Features)
+## 🚀 Đặc tả chức năng đầy đủ
 
-Hệ thống E-Wallet Management cung cấp đầy đủ các chức năng theo yêu cầu đề bài:
+### A. Tạo mới tài khoản khi đăng ký
+- ✅ **Tạo tài khoản người dùng**: Hệ thống cho phép tạo tài khoản với thông tin đầy đủ
+- ✅ **Nhân viên nhập liệu**: Admin có thể tạo tài khoản hộ người dùng
+- ✅ **Cấu trúc dữ liệu**: Lớp AdminUser quản lý thông tin tài khoản hoàn chỉnh
 
-1.  **Quản lý Người dùng:**
-    * Tạo tài khoản người dùng mới với mật khẩu được tạo tự động bởi quản trị viên hoặc do người dùng tự đặt.
-    * Kích hoạt và vô hiệu hóa xác thực hai yếu tố (2FA) sử dụng TOTP.
-    * Người dùng có thể tự thay đổi mật khẩu của mình; mật khẩu tự sinh bắt buộc phải đổi trong lần đăng nhập đầu tiên.
-    * Tài khoản Quản trị (admin) có các quyền đặc thù như tạo tài khoản, xem danh sách người dùng, và hỗ trợ người dùng thay đổi thông tin (với OTP xác thực).
-2.  **Quản lý Ví:**
-    * Mỗi người dùng sở hữu một ví điện tử với mã định danh duy nhất.
-    * Chuyển điểm an toàn và chính xác giữa các ví.
-    * Xem lịch sử chi tiết các giao dịch đã thực hiện (bao gồm trạng thái thành công/thất bại).
-    * Xem số dư hiện tại của ví.
-3.  **Bảo mật:**
-    * **Băm mật khẩu an toàn:** Mật khẩu người dùng được băm bằng thuật toán SHA-256 (hoặc tương đương) kết hợp với salt ngẫu nhiên cho mỗi tài khoản, đảm bảo an toàn chống lại các kỹ thuật tấn công phổ biến.
-    * **Xác thực hai yếu tố (2FA):** Tích hợp TOTP (Time-based One-Time Password) sử dụng thư viện `cpp-otp` để tăng cường bảo mật cho việc đăng nhập và các thao tác quan trọng.
-    * **Tính toàn vẹn giao dịch (Atomicity):** Các giao dịch chuyển tiền được xử lý như một đơn vị không thể tách rời; nếu có lỗi xảy ra, hệ thống đảm bảo khôi phục lại trạng thái ban đầu của các ví liên quan.
-    * **Lưu trữ dữ liệu an toàn:** Dữ liệu được lưu trữ trong file nhị phân `database.dat`, có cơ chế ghi file tạm thời và checksum để đảm bảo tính toàn vẹn, được xác minh khi tải dữ liệu.
-    * **OTP cho các thao tác quan trọng:** Việc sử dụng OTP đã được tích hợp để xác nhận các giao dịch chuyển điểm và các thay đổi thông tin tài khoản nhạy cảm.
+### B. Lưu trữ dữ liệu
+- ✅ **File database**: Sử dụng file văn bản với định dạng có cấu trúc
+- ✅ **Mật khẩu bảo mật**: Lưu trữ mật khẩu với hash function
+- ✅ **Backup/Restore**: Hệ thống sao lưu và phục hồi dữ liệu hoàn chỉnh
 
-## 4. Yêu cầu Hệ thống (Requirements)
+### C. Quản lý đăng nhập
+- ✅ **Sinh mật khẩu tự động**: Tạo mật khẩu ngẫu nhiên khi admin tạo tài khoản
+- ✅ **Thay đổi mật khẩu**: Người dùng có thể thay đổi mật khẩu
+- ✅ **OTP**: Xác thực hai lớp cho các thao tác quan trọng
+- ✅ **Đăng nhập**: Xác thực người dùng và quản lý session
 
-* Trình biên dịch C++ tương thích C++17.
-* CMake phiên bản 3.31 trở lên.
-* Thư viện `cpp-otp` (đã bao gồm trong `deps/` và được liên kết tĩnh).
-    * `cpp-otp` sử dụng triển khai HMAC-SHA1 tùy chỉnh từ `hmac.hpp` do tùy chọn `-DNO_OPENSSL` khi build.
-* Các thư viện chuẩn C++17 (ví dụ: `<filesystem>`). Không yêu cầu thư viện bên ngoài lớn như Boost nếu trình biên dịch hỗ trợ đầy đủ C++17.
+### D. Phân chia người dùng và chức năng
+- ✅ **Người dùng thông thường**: Truy xuất và điều chỉnh thông tin cá nhân
+- ✅ **Người dùng quản lý (Admin)**: Đầy đủ chức năng quản trị hệ thống
 
-## 5. Hướng dẫn Build và Chạy chương trình
+### E. Quản lý hoạt động ví
+- ✅ **Ví điểm thưởng**: Mỗi người dùng có ví với mã định danh duy nhất
+- ✅ **Giao dịch chuyển điểm**: Xử lý atomic giữa các ví
+- ✅ **Lịch sử giao dịch**: Ghi nhận và theo dõi tất cả giao dịch
+- ✅ **Báo cáo**: Theo dõi số dư và lịch sử giao dịch
 
-1.  **Clone repository:**
-    ```bash
-    git clone https://github.com/thanh-vt/PTIT-D24TXCN15-K-CPP-G1-FINAL-EXAM.git
-    cd ewallet-manager
-    ```
-2.  **Tạo thư mục build và build dự án (sử dụng CMake):**
-    ```bash
-    mkdir build
-    cd build
-    cmake ..
-    cmake --build .
-    ```
-    *(Chương trình được cấu hình để liên kết tĩnh, giảm thiểu phụ thuộc vào môi trường chạy.)*
+## 🛠️ Yêu cầu hệ thống
 
-## 6. Hướng dẫn Sử dụng
+- Trình biên dịch C++ hỗ trợ C++17
+- CMake (tùy chọn, có thể dùng g++ trực tiếp)
 
-1.  **Chạy file thực thi:**
-    * Trên Linux/macOS: `./ewallet_manager` (từ trong thư mục `build`)
-    * Trên Windows: `ewallet_manager.exe` (từ trong thư mục `build\Debug` hoặc `build\Release`)
-2.  **Tài khoản admin mặc định:**
-    * Tên đăng nhập: `admin`
-    * Mật khẩu: `admin123`
-3.  **Thực hiện theo menu trên màn hình để tương tác với các chức năng.**
-    *(Tham khảo tài liệu chi tiết về các lệnh và luồng sử dụng trong thư mục `docs/`, đặc biệt là `docs/06_USER_INTERFACE_CLI.md`.)*
+## 📦 Cách tải, dịch và chạy chương trình
 
-## 7. Lưu trữ Dữ liệu
+### Bước 1: Tải mã nguồn
+```bash
+git clone https://github.com/thanh-vt/PTIT-D24TXCN15-K-CPP-G1-FINAL-EXAM.git
+cd PTIT-D24TXCN15-K-CPP-G1-FINAL-EXAM
+```
 
-* Toàn bộ dữ liệu hệ thống (người dùng, ví, giao dịch) được lưu trữ tập trung và an toàn trong file nhị phân `database.dat`, đặt tại thư mục hiện hành khi chương trình được chạy.
-* Dữ liệu được tự động lưu vào file khi chương trình kết thúc một cách hợp lệ.
-* Tính toàn vẹn của file dữ liệu được đảm bảo thông qua magic number, version và cơ chế checksum được xác minh mỗi khi tải dữ liệu.
-* Hệ thống cung cấp quy trình sao lưu và phục hồi dữ liệu, được mô tả chi tiết trong `docs/05_FILE_STORAGE_AND_BACKUP.md`.
+### Bước 2: Biên dịch chương trình
 
-## 8. Các Lưu ý về Bảo mật
+**Cách 1: Sử dụng g++ (Khuyến nghị)**
+```bash
+g++ -std=c++17 src/main.cpp src/ui.cpp src/database.cpp -Iinclude -o ewallet_manager
+```
 
-* **Luôn thay đổi mật khẩu admin mặc định (`admin123`) ngay sau lần đăng nhập đầu tiên để đảm bảo an toàn hệ thống.**
-* Người dùng nên kích hoạt và sử dụng xác thực hai yếu tố (2FA) cho tất cả các tài khoản để tăng cường lớp bảo vệ.
-* Thông tin Wallet ID và khóa bí mật 2FA cần được người dùng bảo vệ cẩn thận.
-* Người dùng nên thường xuyên kiểm tra lịch sử giao dịch của mình để phát hiện sớm các hoạt động bất thường.
-* Các giao dịch chuyển điểm và thay đổi thông tin tài khoản quan trọng đều được bảo vệ bằng một lớp xác thực OTP.
+**Cách 2: Sử dụng CMake**
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build .
+```
 
-## 9. Chất lượng và Hoàn thiện Dự án
+### Bước 3: Chạy chương trình
+```bash
+./ewallet_manager
+```
 
-Dự án đã được hoàn thiện với các điểm nổi bật sau:
+## 🎮 Hướng dẫn sử dụng
 
-* **Mã nguồn có cấu trúc tốt:** Phân chia rõ ràng thành các module (User, Wallet, Database, UI) với các lớp và tệp tiêu đề (.hpp) / tệp nguồn (.cpp) tương ứng, giúp dễ dàng quản lý và bảo trì.
-* **Bảo mật được chú trọng:** Áp dụng các biện pháp bảo mật quan trọng như băm mật khẩu có salt, xác thực hai yếu tố, và cơ chế đảm bảo tính toàn vẹn dữ liệu.
-* **Xử lý giao dịch đáng tin cậy:** Các giao dịch chuyển tiền được thiết kế để đảm bảo tính atomic.
-* **Tài liệu đầy đủ:** Bên cạnh file `README.md` này, dự án có thư mục `docs/` chứa các tài liệu phân tích, thiết kế chi tiết (Mô hình dữ liệu, Thiết kế bảo mật, Các trường hợp sử dụng, Quy trình sao lưu/phục hồi, v.v.), đáp ứng đầy đủ yêu cầu mục (B) của đề bài.
-* **Kiểm thử toàn diện:** Dự án đã được kiểm thử kỹ lưỡng thông qua unit test và kiểm thử tích hợp các chức năng chính để đảm bảo hoạt động ổn định và chính xác.
-* **Quản lý mã nguồn chuyên nghiệp:** Sử dụng Git cho quản lý phiên bản, với các commit rõ ràng, thể hiện sự đóng góp của từng thành viên. Một file `.gitignore` được sử dụng để duy trì kho chứa sạch sẽ, không bao gồm các file build hay file cấu hình IDE không cần thiết.
+### Giao diện chính
+Khi chạy chương trình, bạn sẽ thấy menu chính với 3 lựa chọn:
 
-## 10. Tài liệu tham khảo (References)
+```
+=== E-Wallet Management System ===
 
-* Đề bài môn học Ngôn ngữ C++ (File: `Cplusplus-Project.docx`).
-* Thư viện `cpp-otp` của `patzol768` (dựa trên `tilkinsc/COTP`): `https://github.com/patzol768/cpp-otp`.
-* Thư viện QR Code generator của Nayuki: `https://www.nayuki.io/page/qr-code-generator-library` (được bao gồm trong `cpp-otp`).
-* Tính chất ACID trong cơ sở dữ liệu: `https://200lab.io/blog/acid-la-gi/`.
-* *(Các nguồn tham khảo, thư viện, hoặc bài viết hữu ích khác mà nhóm đã sử dụng trong quá trình thực hiện dự án được liệt kê trong thư mục `docs/`).*
+1. Login
+2. Register
+3. Exit
+
+Enter your choice:
+```
+
+### Đăng nhập Admin
+1. Chạy chương trình
+2. Chọn "1. Login"
+3. Nhập username: `admin`
+4. Nhập password: `admin`
+5. Hệ thống sẽ tự động nhận diện và chuyển đến Admin Dashboard
+
+### Admin Dashboard - Các chức năng đầy đủ
+Sau khi đăng nhập admin thành công, bạn sẽ thấy menu admin với 11 chức năng:
+
+1. **View All Users** - Xem danh sách tất cả người dùng
+2. **Create User** - Tạo tài khoản người dùng mới (tự động sinh mật khẩu)
+3. **Update User** - Cập nhật thông tin người dùng (có OTP validation)
+4. **Delete User** - Xóa tài khoản người dùng
+5. **View All Wallets** - Xem danh sách tất cả ví
+6. **View Wallet Details** - Xem chi tiết ví cụ thể
+7. **View System Statistics** - Thống kê tổng quan hệ thống
+8. **View Transaction Log** - Xem lịch sử giao dịch
+9. **Backup Database** - Sao lưu database
+10. **Restore Database** - Phục hồi database từ backup
+11. **Logout** - Đăng xuất và quay về menu chính
+
+### Thông tin đăng nhập mặc định
+- **Admin Username**: `admin`
+- **Admin Password**: `admin`
+
+## 📁 Cấu trúc dự án
+
+```
+├── src/                    # Mã nguồn
+│   ├── main.cpp           # Entry point
+│   ├── database.cpp       # Database logic (đã đơn giản hóa)
+│   └── ui.cpp             # Giao diện CLI
+├── include/               # Header files
+│   ├── database.hpp
+│   └── ui.h
+├── README.md              # File này
+├── DATABASE_README.md     # Tài liệu database chi tiết
+├── SIMPLIFICATION_SUMMARY.md  # Tóm tắt đơn giản hóa
+└── CMakeLists.txt         # Build configuration
+```
+
+## 📚 Tài liệu tham khảo
+
+### Nguồn tham khảo chính
+1. **CPP_OTP**: https://github.com/patzol768/cpp-otp - Thư viện OTP cho C++
+2. **COTP**: https://github.com/tilkinsc/COTP - Thư viện OTP tương thích C
+3. **ACID Properties**: https://200lab.io/blog/acid-la-gi/ - Tính chất ACID trong database
+
+### Tài liệu dự án
+- **[DATABASE_README.md](DATABASE_README.md)**: Chi tiết về hệ thống database
+- **Mã nguồn**: Có chú thích đầy đủ, mô tả input/output và thủ tục xử lý
+
+## 🎯 Đặc điểm kỹ thuật
+
+### Kiến trúc hệ thống
+- **Design Pattern**: Singleton cho Database, Factory cho UI components
+- **File Format**: Text-based với delimiter `|` cho dễ đọc và debug
+- **Security**: Simple checksum validation, password hashing
+- **Error Handling**: Exception handling đầy đủ với try-catch blocks
+
+### Tính năng bảo mật
+- **Password Hashing**: Mật khẩu được hash trước khi lưu trữ
+- **OTP Validation**: Xác thực hai lớp cho các thao tác quan trọng
+- **Atomic Transactions**: Đảm bảo tính toàn vẹn dữ liệu khi chuyển điểm
+- **Backup/Restore**: Sao lưu định kỳ với timestamp
+
+### Hiệu năng và tối ưu
+- **Memory Management**: Sử dụng smart pointers (shared_ptr)
+- **File I/O**: Optimized text format với simple checksum
+- **Code Quality**: Clean code với comments tiếng Việt đầy đủ
 
 ---
+
+## 📋 Tóm tắt dự án
+
+**Hệ thống đăng nhập và đăng ký tài khoản và quản lý ví điểm thưởng** là một ứng dụng C++ hoàn chỉnh được phát triển theo yêu cầu đề bài. Dự án cung cấp đầy đủ các chức năng quản lý tài khoản, ví điện tử, và hệ thống admin với giao diện dòng lệnh thân thiện.
+
+**Nhóm 1 - Lớp D24TXCN15-K**
+- Vũ Tất Thành (K24DTCN638)
+- Nguyễn Quang Đạo
+- Nguyễn Việt
+- Nguyễn Viết Tùng (K24DTCN633)

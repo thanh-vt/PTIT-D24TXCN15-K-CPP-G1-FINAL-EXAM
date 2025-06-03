@@ -21,46 +21,19 @@
 #include <random>
 #include <fstream>
 
-// Forward declaration of the actual initialization logic
-static void perform_cotp_initialization();
+static void init_lib() __attribute__((constructor));
 
-#if defined(__GNUC__) || defined(__clang__)
-// GCC/Clang specific: Use constructor attribute
-static void init_lib_entry_point() __attribute__((constructor));
-static void init_lib_entry_point() {
-    perform_cotp_initialization();
-}
-#elif defined(_MSC_VER)
-// MSVC specific: Use a static object whose constructor calls the init logic
-// Required headers <cstdlib> for srand and <random> for std::random_device
-// are typically included already or via other standard headers.
-// "cotp/cotp.hpp" and "hmac.hpp" are already included above.
-namespace { // Anonymous namespace to keep CotpInitializer local to this translation unit
-    struct CotpInitializer {
-        CotpInitializer() {
-            perform_cotp_initialization();
-        }
-    };
-    static CotpInitializer global_cotp_library_initializer; // Ensures constructor runs
-} // end anonymous namespace
-#else
-// Fallback for other compilers or if automatic initialization is not critical/desired.
-// Consider a public init function or pragma message to warn about manual initialization.
-#endif
-
-// Definition of the actual initialization logic
-static void perform_cotp_initialization() {
+static void init_lib() {
     unsigned int seed;
-    // size_t size = sizeof(seed); // This variable was unused
+    size_t size = sizeof(seed);
 
-    // Use C++ random device
+    // Use C++ random device instead of /dev/urandom
     std::random_device rd;
     seed = rd();
 
     srand(seed);
 
     // Register default algorithms
-    // cotp::OTP and HMAC::sha1 should be available from included headers.
     cotp::OTP::register_hmac_algo("SHA1", [](const std::vector<char>& key, const std::vector<char>& message) {
         std::vector<uint8_t> key_bytes(key.begin(), key.end());
         std::vector<uint8_t> message_bytes(message.begin(), message.end());
