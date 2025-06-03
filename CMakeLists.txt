@@ -33,3 +33,4 @@ target_include_directories(ewallet-manager PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+

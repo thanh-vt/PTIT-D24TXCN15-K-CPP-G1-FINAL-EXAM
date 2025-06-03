@@ -6,11 +6,9 @@
 #include <functional>
 #include <cstdint>
 
-class HMAC
-{
+class HMAC {
 public:
-    static std::vector<uint8_t> sha1(const std::vector<uint8_t> &key, const std::vector<uint8_t> &message)
-    {
+    static std::vector<uint8_t> sha1(const std::vector<uint8_t> &key, const std::vector<uint8_t> &message) {
         return hmac(key, message, sha1_hash);
     }
 
@@ -19,14 +17,12 @@ private:
 
     static std::vector<uint8_t> hmac(const std::vector<uint8_t> &key,
                                      const std::vector<uint8_t> &message,
-                                     const HashFunction &hash_func)
-    {
+                                     const HashFunction &hash_func) {
         const size_t block_size = 64; // SHA-1 block size
         std::vector<uint8_t> key_padded = key;
 
         // If key is longer than block size, hash it
-        if (key_padded.size() > block_size)
-        {
+        if (key_padded.size() > block_size) {
             key_padded = hash_func(key_padded);
         }
 
@@ -38,8 +34,7 @@ private:
         std::vector<uint8_t> outer_padding(block_size, 0x5c);
 
         // XOR key with inner/outer padding
-        for (size_t i = 0; i < block_size; ++i)
-        {
+        for (size_t i = 0; i < block_size; ++i) {
             inner_padding[i] ^= key_padded[i];
             outer_padding[i] ^= key_padded[i];
         }
@@ -57,8 +52,7 @@ private:
         return hash_func(outer_hash_input);
     }
 
-    static std::vector<uint8_t> sha1_hash(const std::vector<uint8_t> &input)
-    {
+    static std::vector<uint8_t> sha1_hash(const std::vector<uint8_t> &input) {
         // SHA-1 implementation
         uint32_t h0 = 0x67452301;
         uint32_t h1 = 0xEFCDAB89;
@@ -72,25 +66,21 @@ private:
 
         // Append padding
         message.push_back(0x80);
-        while ((message.size() * 8 + 64) % 512 != 0)
-        {
+        while ((message.size() * 8 + 64) % 512 != 0) {
             message.push_back(0);
         }
 
         // Append length
-        for (int i = 0; i < 8; ++i)
-        {
+        for (int i = 0; i < 8; ++i) {
             message.push_back((original_length >> ((7 - i) * 8)) & 0xFF);
         }
 
         // Process message in 512-bit chunks
-        for (size_t i = 0; i < message.size(); i += 64)
-        {
+        for (size_t i = 0; i < message.size(); i += 64) {
             std::array<uint32_t, 80> w;
 
             // Copy chunk into first 16 words
-            for (int j = 0; j < 16; ++j)
-            {
+            for (int j = 0; j < 16; ++j) {
                 w[j] = (message[i + j * 4] << 24) |
                        (message[i + j * 4 + 1] << 16) |
                        (message[i + j * 4 + 2] << 8) |
@@ -98,8 +88,7 @@ private:
             }
 
             // Extend the first 16 words into the remaining 64 words
-            for (int j = 16; j < 80; ++j)
-            {
+            for (int j = 16; j < 80; ++j) {
                 w[j] = left_rotate(w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16], 1);
             }
 
@@ -111,26 +100,18 @@ private:
             uint32_t e = h4;
 
             // Main loop
-            for (int j = 0; j < 80; ++j)
-            {
+            for (int j = 0; j < 80; ++j) {
                 uint32_t f, k;
-                if (j < 20)
-                {
+                if (j < 20) {
                     f = (b & c) | ((~b) & d);
                     k = 0x5A827999;
-                }
-                else if (j < 40)
-                {
+                } else if (j < 40) {
                     f = b ^ c ^ d;
                     k = 0x6ED9EBA1;
-                }
-                else if (j < 60)
-                {
+                } else if (j < 60) {
                     f = (b & c) | (b & d) | (c & d);
                     k = 0x8F1BBCDC;
-                }
-                else
-                {
+                } else {
                     f = b ^ c ^ d;
                     k = 0xCA62C1D6;
                 }
@@ -154,8 +135,7 @@ private:
         // Produce the final hash value
         std::vector<uint8_t> hash;
         hash.reserve(20);
-        for (uint32_t h : {h0, h1, h2, h3, h4})
-        {
+        for (uint32_t h: {h0, h1, h2, h3, h4}) {
             hash.push_back((h >> 24) & 0xFF);
             hash.push_back((h >> 16) & 0xFF);
             hash.push_back((h >> 8) & 0xFF);
@@ -164,8 +144,7 @@ private:
         return hash;
     }
 
-    static uint32_t left_rotate(uint32_t x, int n)
-    {
+    static uint32_t left_rotate(uint32_t x, int n) {
         return (x << n) | (x >> (32 - n));
     }
 };
