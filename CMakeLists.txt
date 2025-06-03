@@ -41,5 +41,9 @@ target_link_libraries(ewallet-manager PRIVATE
         cotp
 )
 
-
+# Copy test files
+file(GLOB TEST_FILES
+        "${CMAKE_SOURCE_DIR}/test/**"
+)
+file(COPY ${TEST_FILES} DESTINATION ${CMAKE_BINARY_DIR})
 
