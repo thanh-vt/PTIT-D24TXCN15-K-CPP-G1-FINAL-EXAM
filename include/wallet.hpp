@@ -6,8 +6,7 @@
 #include <memory>
 #include "transaction.hpp"
 
-class Wallet
-{
+class Wallet {
 public:
     Wallet(const std::string &id, double initialBalance = 0.0);
 
@@ -18,10 +17,12 @@ public:
 
     // Transaction methods
     bool transfer(Wallet &destination, double amount, const std::string &description = "");
+
     void addTransaction(const Transaction &transaction);
 
     // Balance management
     void addBalance(double amount);
+
     bool deductBalance(double amount);
 
     std::string generateTransactionId();
