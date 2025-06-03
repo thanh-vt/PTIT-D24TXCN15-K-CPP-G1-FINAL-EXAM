@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Fully static linking
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 
+# Add cpp-otp library
+add_subdirectory(deps/cpp-otp)
+
 # Add source files
 set(SOURCES
     src/main.cpp
@@ -32,5 +35,11 @@ add_executable(ewallet-manager ${SOURCES} ${HEADERS})
 target_include_directories(ewallet-manager PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+# Link libraries
+target_link_libraries(ewallet-manager PRIVATE
+        cotp
+)
+
 
 
