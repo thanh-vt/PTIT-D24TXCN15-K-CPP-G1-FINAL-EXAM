@@ -2,13 +2,10 @@
 
 #include <string>
 #include <chrono>
-#include <memory>
-#include <optional>
-#include <vector>
 
 class User {
 public:
-    User(const std::string& username, 
+    User(const std::string& username,
          const std::string& fullname,
          const std::chrono::system_clock::time_point& dob,
          bool isAdmin = false);
@@ -49,4 +46,4 @@ private:
     bool has2FA_;
     std::string secretKey_; // For 2FA
     std::string walletId_;
-}; 
+};
