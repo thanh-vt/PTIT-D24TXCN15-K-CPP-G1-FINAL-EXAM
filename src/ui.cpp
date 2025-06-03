@@ -22,16 +22,13 @@ UI &UI::getInstance()
     return instance;
 }
 
-UI::UI() : is_admin_logged_in_(false) {}
+UI::UI() {}
 
 UI::~UI() {}
 
-void UI::start()
-{
-    // Load database and create default admin
-    Database &db = Database::getInstance();
-    db.loadFromFile();
-    db.createDefaultAdminUser();
+void UI::start() {
+    // Database is already loaded by the Database singleton constructor
+    // No need to load it again here
 
     while (true)
     {
@@ -46,70 +43,252 @@ void UI::start()
         std::cin >> choice;
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-        switch (choice)
-        {
-        case 1:
-            handleLogin();
-            break;
-        case 2:
-            handleRegister();
-            break;
-        case 3:
-            return;
-        default:
-            std::cout << "Invalid choice. Please try again.\n";
-            waitForEnter();
+        switch (choice) {
+            case 1: {
+                auto user = login();
+                if (user) {
+                    if (user->isAdmin()) {
+                        showAdminMenu(user);
+                    } else {
+                        showUserMenu(user);
+                    }
+                }
+                break;
+            }
+            case 2:
+                registerUser();
+                break;
+            case 3:
+                return;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
+                waitForEnter();
         }
     }
 }
 
-void UI::handleLogin()
-{
-    showHeader("Login");
-
-    std::string username = getInput("Username: ");
-    std::string password = getPassword("Password: ");
-
-    Database &db = Database::getInstance();
-
-    // Check if admin login
-    if (username == "admin" && password == "admin")
-    {
-        if (db.authenticateAdmin(username, password))
-        {
-            current_admin_username_ = username;
-            is_admin_logged_in_ = true;
-            showSuccess("Admin login successful!");
-            waitForEnter();
-            showAdminMenu();
-        }
-        else
-        {
-            showError("Admin authentication failed!");
-            waitForEnter();
-        }
-    }
-    else
-    {
-        showError("User login not implemented yet. Use admin/admin for admin access.");
-        waitForEnter();
-    }
-}
-
-void UI::handleRegister()
-{
-    showError("User registration not implemented yet.");
-    waitForEnter();
-}
-
-void UI::showMainMenu()
-{
+void UI::showMainMenu() {
     clearScreen();
     std::cout << "=== Main Menu ===\n\n";
     std::cout << "1. User Management\n";
     std::cout << "2. Wallet Management\n";
     std::cout << "3. Logout\n\n";
     std::cout << "Enter your choice: ";
+}
+
+void UI::showUserMenu(std::shared_ptr<User> user) {
+    while (true) {
+        clearScreen();
+        std::cout << "=== User Menu ===\n\n";
+        std::cout << "1. View Profile\n";
+        std::cout << "2. Change Password\n";
+        std::cout << "3. Enable/Disable 2FA\n";
+        std::cout << "4. Wallet Management\n";
+        std::cout << "5. Logout\n\n";
+        std::cout << "Enter your choice: ";
+
+        int choice;
+        std::cin >> choice;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        switch (choice) {
+            case 1:
+                viewProfile(user);
+                break;
+            case 2:
+                changePassword(user);
+                break;
+            case 3:
+                toggle2FA(user);
+                break;
+            case 4:
+                showWalletMenu(user);
+                break;
+            case 5:
+                return;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
+                waitForEnter();
+        }
+    }
+}
+
+void UI::showAdminMenu(std::shared_ptr<User> admin) {
+    while (true) {
+        clearScreen();
+        std::cout << "=== Admin Menu ===\n\n";
+        std::cout << "1. View All Users\n";
+        std::cout << "2. Create User\n";
+        std::cout << "3. Update User\n";
+        std::cout << "4. Delete User\n";
+        std::cout << "5. View All Wallets\n";
+        std::cout << "6. Logout\n\n";
+        std::cout << "Enter your choice: ";
+
+        int choice;
+        std::cin >> choice;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        switch (choice) {
+            case 1:
+                listUsers();
+                break;
+            case 2:
+                createUser();
+                break;
+            case 3:
+                // Update user
+                break;
+            case 4:
+                deleteUser();
+                break;
+            case 5:
+                // View all wallets
+                break;
+            case 6:
+                return;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
+                waitForEnter();
+        }
+    }
+}
+
+void UI::showWalletMenu(std::shared_ptr<User> user) {
+    while (true) {
+        clearScreen();
+        std::cout << "=== Wallet Menu ===\n\n";
+        std::cout << "1. View Balance\n";
+        std::cout << "2. Transfer Points\n";
+        std::cout << "3. Transaction History\n";
+        std::cout << "4. Back\n\n";
+        std::cout << "Enter your choice: ";
+
+        int choice;
+        std::cin >> choice;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        switch (choice) {
+            case 1:
+                viewBalance(user);
+                break;
+            case 2:
+                transferPoints(user);
+                break;
+            case 3:
+                viewTransactionHistory(user);
+                break;
+            case 4:
+                return;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
+                waitForEnter();
+        }
+    }
+}
+
+std::string UI::getPasswordInput(const std::string& prompt) {
+    std::string password;
+    std::cout << prompt;
+
+#ifdef _WIN32
+    char ch;
+    while ((ch = _getch()) != '\r') {  // Read until Enter key
+        if (ch == '\b') {  // Backspace
+            if (!password.empty()) {
+                password.pop_back();
+                std::cout << "\b \b";  // Move back, print space, move back again
+            }
+        } else {
+            password += ch;
+            std::cout << '*';  // Print asterisk instead of the character
+        }
+    }
+    std::cout << std::endl;
+#else
+    // Save terminal settings
+    termios oldt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    termios newt = oldt;
+    newt.c_lflag &= ~ECHO;  // Disable echo
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    // Read password
+    std::getline(std::cin, password);
+
+    // Restore terminal settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+#endif
+
+    return password;
+}
+
+std::shared_ptr<User> UI::login() {
+    clearScreen();
+    std::cout << "=== Login ===\n\n";
+
+    // TODO login
+
+    return nullptr;
+}
+
+bool UI::authenticateUser(const std::string& username, const std::string& password) {
+    // TODO authenticate user
+    return true;
+}
+
+bool UI::verify2FA(std::shared_ptr<User> user) {
+    if (!user->has2FA()) return true;
+
+    std::string otp = getInput("Enter 2FA code: ");
+    return user->verify2FA(otp);
+}
+
+void UI::createUser() {
+    clearScreen();
+    std::cout << "=== Create User ===\n\n";
+
+    // TODO create user
+    waitForEnter();
+}
+
+void UI::deleteUser() {
+    clearScreen();
+    // TODO delete user
+    waitForEnter();
+}
+
+void UI::listUsers() {
+    clearScreen();
+    std::cout << "=== User List ===\n\n";
+    // TODO view users
+    waitForEnter();
+}
+
+void UI::viewBalance(std::shared_ptr<User> user) {
+    clearScreen();
+    std::cout << "=== Wallet Balance ===\n\n";
+    // TODO view balance
+    waitForEnter();
+}
+
+void UI::transferPoints(std::shared_ptr<User> user) {
+    clearScreen();
+    std::cout << "=== Transfer Points ===\n\n";
+
+    // TODO transfer points
+    waitForEnter();
+}
+
+void UI::viewTransactionHistory(std::shared_ptr<User> user) {
+    if (!user) {
+        std::cout << "No user selected.\n";
+        return;
+    }
+
+    std::cout << "\nTransaction History for " << user->getUsername() << ":\n";
+    // TODO view transaction history
+    waitForEnter();
 }
 
 void UI::clearScreen()
@@ -169,304 +348,34 @@ std::chrono::system_clock::time_point UI::getDateInput(const std::string &prompt
     }
 }
 
-// Helper functions implementation
-std::string UI::getPassword(const std::string &prompt)
-{
-    std::cout << prompt;
-    std::string password;
-    std::getline(std::cin, password);
-    return password;
-}
-
-bool UI::getConfirmation(const std::string &message)
-{
-    std::string response = getInput(message + " (yes/no): ");
-    return (response == "yes" || response == "YES" || response == "y" || response == "Y");
-}
-
-int UI::getChoice(const std::string &prompt, int min, int max)
-{
-    int choice;
-    while (true)
-    {
-        std::cout << prompt;
-        if (std::cin >> choice && choice >= min && choice <= max)
-        {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            return choice;
-        }
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Invalid choice. Please enter a number between " << min << " and " << max << ".\n";
-    }
-}
-
-// Display functions implementation
-void UI::showHeader(const std::string &title)
-{
+void UI::registerUser() {
     clearScreen();
-    std::cout << "=== " << title << " ===\n\n";
-}
+    std::cout << "=== User Registration ===\n\n";
 
-void UI::showError(const std::string &message)
-{
-    std::cout << "\n[ERROR] " << message << std::endl;
-}
-
-void UI::showSuccess(const std::string &message)
-{
-    std::cout << "\n[SUCCESS] " << message << std::endl;
-}
-
-void UI::showWarning(const std::string &message)
-{
-    std::cout << "\n[WARNING] " << message << std::endl;
-}
-
-// Admin functions implementation
-void UI::showAdminLoginScreen()
-{
-    showHeader("Admin Login");
-
-    std::string username = getInput("Admin Username: ");
-    std::string password = getPassword("Admin Password: ");
-
-    Database &db = Database::getInstance();
-    if (db.authenticateAdmin(username, password))
-    {
-        current_admin_username_ = username;
-        is_admin_logged_in_ = true;
-        showSuccess("Admin login successful!");
-        waitForEnter();
-        showAdminMenu();
-    }
-    else
-    {
-        showError("Invalid admin credentials!");
-        waitForEnter();
-    }
-}
-
-void UI::showAdminMenu()
-{
-    while (is_admin_logged_in_)
-    {
-        showHeader("Admin Menu - Welcome " + current_admin_username_);
-
-        std::cout << "1. View All Users\n";
-        std::cout << "2. Create User\n";
-        std::cout << "3. Update User\n";
-        std::cout << "4. Delete User\n";
-        std::cout << "5. View All Wallets\n";
-        std::cout << "6. View Wallet Details\n";
-        std::cout << "7. View System Statistics\n";
-        std::cout << "8. View Transaction Log\n";
-        std::cout << "9. Backup Database\n";
-        std::cout << "10. Restore Database\n";
-        std::cout << "11. Logout\n\n";
-
-        int choice = getChoice("Enter your choice: ", 1, 11);
-
-        switch (choice)
-        {
-        case 1:
-            handleAdminViewAllUsers();
-            break;
-        case 2:
-            handleAdminCreateUser();
-            break;
-        case 3:
-            handleAdminUpdateUser();
-            break;
-        case 4:
-            handleAdminDeleteUser();
-            break;
-        case 5:
-            handleAdminViewAllWallets();
-            break;
-        case 6:
-            handleAdminViewWalletDetails();
-            break;
-        case 7:
-            handleAdminViewSystemStats();
-            break;
-        case 8:
-            handleAdminViewTransactionLog();
-            break;
-        case 9:
-            handleAdminBackupDatabase();
-            break;
-        case 10:
-            handleAdminRestoreDatabase();
-            break;
-        case 11:
-            is_admin_logged_in_ = false;
-            current_admin_username_.clear();
-            showSuccess("Admin logged out successfully!");
-            waitForEnter();
-            return;
-        }
-    }
-}
-
-// Admin user management implementation
-void UI::handleAdminViewAllUsers()
-{
-    showHeader("View All Users");
-    Database &db = Database::getInstance();
-    db.adminViewAllUsers();
+    // Get username
+    // TODO register user
     waitForEnter();
 }
 
-void UI::handleAdminCreateUser()
-{
-    showHeader("Create New User");
+void UI::toggle2FA(std::shared_ptr<User> user) {
+    clearScreen();
+    std::cout << "=== 2FA Settings ===\n\n";
 
-    std::string username = getInput("Enter username: ");
-    std::string fullName = getInput("Enter full name: ");
-    std::string birthDate = getInput("Enter birth date (YYYY-MM-DD): ");
-
-    Database &db = Database::getInstance();
-    std::string generatedPassword;
-
-    if (db.adminCreateUser(username, fullName, birthDate, generatedPassword))
-    {
-        showSuccess("User created successfully!");
-        std::cout << "\nGenerated password: " << generatedPassword << std::endl;
-        std::cout << "Please provide this password to the user securely." << std::endl;
-        std::cout << "User must change this password on first login." << std::endl;
-    }
-    else
-    {
-        showError("Failed to create user!");
-    }
+    // TODO toggle 2FA
     waitForEnter();
 }
 
-void UI::handleAdminUpdateUser()
-{
-    showHeader("Update User Information");
-
-    std::string username = getInput("Enter username to update: ");
-    std::string newFullName = getInput("Enter new full name: ");
-    std::string newBirthDate = getInput("Enter new birth date (YYYY-MM-DD): ");
-    std::string otpCode = getInput("Enter OTP code from user (if 2FA enabled): ");
-
-    Database &db = Database::getInstance();
-    if (db.adminUpdateUserInfo(username, newFullName, newBirthDate, otpCode))
-    {
-        showSuccess("User information updated successfully!");
-    }
-    else
-    {
-        showError("Failed to update user information!");
-    }
+void UI::changePassword(std::shared_ptr<User> user) {
+    clearScreen();
+    // TODO change password
     waitForEnter();
 }
 
-void UI::handleAdminDeleteUser()
-{
-    showHeader("Delete User");
+void UI::viewProfile(std::shared_ptr<User> user) {
+    clearScreen();
+    std::cout << "=== User Profile ===\n\n";
+    // TODO view profile
 
-    std::string username = getInput("Enter username to delete: ");
-
-    if (getConfirmation("Are you sure you want to delete user '" + username + "'?"))
-    {
-        Database &db = Database::getInstance();
-        if (db.adminDeleteUser(username))
-        {
-            showSuccess("User deleted successfully!");
-        }
-        else
-        {
-            showError("Failed to delete user!");
-        }
-    }
-    else
-    {
-        std::cout << "Delete operation cancelled." << std::endl;
-    }
-    waitForEnter();
-}
-
-// Admin wallet management implementation
-void UI::handleAdminViewAllWallets()
-{
-    showHeader("View All Wallets");
-    Database &db = Database::getInstance();
-    db.adminViewAllWallets();
-    waitForEnter();
-}
-
-void UI::handleAdminViewWalletDetails()
-{
-    showHeader("View Wallet Details");
-
-    std::string walletId = getInput("Enter Wallet ID: ");
-
-    Database &db = Database::getInstance();
-    db.adminViewWalletDetails(walletId);
-    waitForEnter();
-}
-
-// Admin system management implementation
-void UI::handleAdminViewSystemStats()
-{
-    showHeader("System Statistics");
-    Database &db = Database::getInstance();
-    db.adminViewSystemStats();
-    waitForEnter();
-}
-
-void UI::handleAdminViewTransactionLog()
-{
-    showHeader("Transaction Log");
-    Database &db = Database::getInstance();
-    db.adminViewTransactionLog();
-    waitForEnter();
-}
-
-void UI::handleAdminBackupDatabase()
-{
-    showHeader("Backup Database");
-
-    std::string backupPath = getInput("Enter backup directory (or press Enter for default): ");
-
-    Database &db = Database::getInstance();
-    if (db.adminBackupDatabase(backupPath))
-    {
-        showSuccess("Database backup completed successfully!");
-    }
-    else
-    {
-        showError("Database backup failed!");
-    }
-    waitForEnter();
-}
-
-void UI::handleAdminRestoreDatabase()
-{
-    showHeader("Restore Database");
-
-    std::string backupPath = getInput("Enter backup file path: ");
-
-    showWarning("This will overwrite all current data!");
-    if (getConfirmation("Are you sure you want to restore from '" + backupPath + "'?"))
-    {
-        Database &db = Database::getInstance();
-        if (db.adminRestoreDatabase(backupPath))
-        {
-            showSuccess("Database restore completed successfully!");
-        }
-        else
-        {
-            showError("Database restore failed!");
-        }
-    }
-    else
-    {
-        std::cout << "Restore operation cancelled." << std::endl;
-    }
     waitForEnter();
 }
 

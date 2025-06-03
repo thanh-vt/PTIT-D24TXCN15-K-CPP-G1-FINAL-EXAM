@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include "database.hpp"
 
 // TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 void printUsage(const char *programName)
@@ -73,25 +74,18 @@ int main(int argc, char *argv[])
         }
 
         // Initialize database with the specified path
-        if (!dbPath.empty())
-        {
+        if (!dbPath.empty()) {
             std::cout << "Setting database base path to: " << dbPath << std::endl;
             Database::getInstance().setBasePath(dbPath);
-        }
-        else
-        {
+        } else {
             std::cout << "No database path specified, using current directory" << std::endl;
         }
 
         UI::getInstance().start();
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
-    }
-    catch (...)
-    {
+    } catch (...) {
         std::cerr << "Unknown error occurred." << std::endl;
         return 1;
     }

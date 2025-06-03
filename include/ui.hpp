@@ -3,13 +3,13 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <memory>
 #include "user.hpp"
 #include "wallet.hpp"
 
-class UI
-{
+class UI {
 public:
-    static UI &getInstance();
+    static UI& getInstance();
 
     void start();
     void showMainMenu();
@@ -39,20 +39,21 @@ public:
     void handleAdminRestoreDatabase();    // Xu ly phuc hoi database
 
     void showUserMenu(std::shared_ptr<User> user);
-    void toggle2FA(std::shared_ptr<User> user);
+    void showAdminMenu(std::shared_ptr<User> admin);
     void showWalletMenu(std::shared_ptr<User> user);
+    void toggle2FA(std::shared_ptr<User> user);
 
 private:
     UI();
     ~UI();
 
     // Prevent copying
-    UI(const UI &) = delete;
-    UI &operator=(const UI &) = delete;
+    UI(const UI&) = delete;
+    UI& operator=(const UI&) = delete;
 
     // Authentication
     std::shared_ptr<User> login();
-    bool authenticateUser(const std::string &username, const std::string &password);
+    bool authenticateUser(const std::string& username, const std::string& password);
     bool verify2FA(std::shared_ptr<User> user);
     void registerUser();
 
@@ -73,12 +74,13 @@ private:
     // Helper functions
     void clearScreen();
     void waitForEnter();
-    std::string getInput(const std::string &prompt);
-    std::string getPassword(const std::string &prompt);         // Lay password (an)
+    std::string getInput(const std::string& prompt);
+    std::string getPasswordInput(const std::string& prompt);
+    double getAmountInput(const std::string& prompt);
+    std::chrono::system_clock::time_point getDateInput(const std::string& prompt);
+
     bool getConfirmation(const std::string &message);           // Lay xac nhan yes/no
     int getChoice(const std::string &prompt, int min, int max); // Lay lua chon
-    double getAmountInput(const std::string &prompt);
-    std::chrono::system_clock::time_point getDateInput(const std::string &prompt);
 
     // Display functions
     void showHeader(const std::string &title);    // Hien thi header
