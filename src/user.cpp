@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <random>
 #include <ctime>
-#include <cotp/cotp.hpp>
+// #include <cotp/cotp.hpp>  // 2FA not implemented yet
 
 User::User(const std::string &username,
            const std::string &fullname,
