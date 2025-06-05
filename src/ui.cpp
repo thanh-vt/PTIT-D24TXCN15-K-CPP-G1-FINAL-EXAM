@@ -8,6 +8,10 @@
 #include <chrono>
 
 #ifdef _WIN32
+#define NOMINMAX  // Prevent Windows.h from defining min/max macros
+#endif
+
+#ifdef _WIN32
 #include <windows.h>
 #include <conio.h>
 #else
@@ -39,7 +43,7 @@ void UI::start() {
 
         int choice;
         std::cin >> choice;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
         switch (choice) {
             case 1: {
@@ -87,7 +91,7 @@ void UI::showUserMenu(std::shared_ptr<User> user) {
 
         int choice;
         std::cin >> choice;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
         switch (choice) {
             case 1:
@@ -125,7 +129,7 @@ void UI::showAdminMenu(std::shared_ptr<User> admin) {
 
         int choice;
         std::cin >> choice;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
         switch (choice) {
             case 1:
@@ -135,7 +139,7 @@ void UI::showAdminMenu(std::shared_ptr<User> admin) {
                 createUser();
                 break;
             case 3:
-                // Update user
+                updateUser(admin);
                 break;
             case 4:
                 deleteUser();
@@ -164,7 +168,7 @@ void UI::showWalletMenu(std::shared_ptr<User> user) {
 
         int choice;
         std::cin >> choice;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
         switch (choice) {
             case 1:
@@ -307,8 +311,195 @@ void UI::createUser() {
     waitForEnter();
 }
 
-void UI::updateUser(std::shared_ptr<User> user) {
-    // NOT implemented
+void UI::updateUser(std::shared_ptr<User> performingAdmin) {
+    clearScreen();
+    std::cout << "=== Cap Nhat Thong Tin User (Admin) ===\n\n";
+
+    
+    std::string usernameToUpdate = getInput("Nhap username cua user can cap nhat: ");
+    
+    if (usernameToUpdate == performingAdmin->getUsername()) {
+        std::cout << "De cap nhat thong tin ca nhan cua ban (admin),\n";
+        std::cout << "vui long su dung cac tuy chon trong menu User (sau khi logout va login lai nhu user thuong).\n";
+        std::cout << "Chuc nang nay dung de cap nhat user khac.\n";
+        
+        waitForEnter();
+        return;
+    }
+    // Kiem tra neu admin khac dang co gang cap nhat "admin" chinh (neu co quy uoc nay)
+    if (usernameToUpdate == "admin" && performingAdmin->getUsername() != "admin") { 
+        std::cout << "Ban khong co quyen cap nhat thong tin admin chinh.\n";
+        waitForEnter();
+        return;
+    }
+
+    auto userToUpdate = Database::getInstance().getUser(usernameToUpdate);
+    if (!userToUpdate) {
+        std::cout << "User '" << usernameToUpdate << "' khong tim thay.\n";
+        waitForEnter();
+        return;
+    }
+
+    std::cout << "\nThong tin hien tai cua user: " << userToUpdate->getUsername() << "\n";
+    std::cout << "1. Full Name: " << userToUpdate->getFullname() << "\n";
+    auto dob_time_t = std::chrono::system_clock::to_time_t(userToUpdate->getDateOfBirth());
+    std::cout << "2. Date of Birth (YYYY-MM-DD): " << std::put_time(std::localtime(&dob_time_t), "%Y-%m-%d") << "\n";
+    std::cout << "3. Trang thai 2FA: " << (userToUpdate->has2FA() ? "Bat" : "Tat") << "\n";
+    
+    auto wallet = Database::getInstance().getWallet(userToUpdate->getWalletId());
+    if (wallet) {
+        std::cout << "4. So du Vi: " << std::fixed << std::setprecision(2) << wallet->getBalance() << " diem\n";
+    } else {
+        std::cout << "4. So du Vi: Khong tim thay vi.\n";
+    }
+    std::cout << "-------------------------------------\n";
+    std::cout << "Ban muon cap nhat thong tin nao? (Nhap so, 0 de huy):\n";
+    std::cout << "1. Full Name\n";
+    std::cout << "2. Date of Birth\n";
+    std::cout << "3. Bat/Tat 2FA (cho user)\n";
+    std::cout << "4. Dieu chinh so du Vi\n"; 
+    std::cout << "Lua chon cua ban: ";
+
+    int choice;
+    std::cin >> choice;
+    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
+
+    bool infoChanged = false;
+    bool balanceChanged = false;
+
+    switch (choice) {
+        case 0:
+            std::cout << "Huy cap nhat.\n";
+            waitForEnter();
+            return;
+        case 1: { // Cap nhat Full Name
+            std::string newFullname = getInput("Nhap Full Name moi: ");
+           
+            User updatedUserCopy(userToUpdate->getUsername(), newFullname, userToUpdate->getDateOfBirth(), userToUpdate->isAdmin());
+            updatedUserCopy.setPasswordHash(userToUpdate->getPasswordHash()); 
+            if (userToUpdate->has2FA()) updatedUserCopy.enable2FA(userToUpdate->getSecretKey()); 
+            updatedUserCopy.setWalletId(userToUpdate->getWalletId());
+            *userToUpdate = updatedUserCopy; 
+            infoChanged = true;
+            std::cout << "Full Name da duoc thay doi (tam thoi).\n";
+            break;
+        }
+        case 2: { // Cap nhat Ngay Sinh
+            auto newDob = getDateInput("Nhap Date of Birth moi (YYYY-MM-DD): ");
+          
+            User updatedUserCopy(userToUpdate->getUsername(), userToUpdate->getFullname(), newDob, userToUpdate->isAdmin());
+            updatedUserCopy.setPasswordHash(userToUpdate->getPasswordHash());
+            if (userToUpdate->has2FA()) updatedUserCopy.enable2FA(userToUpdate->getSecretKey());
+            updatedUserCopy.setWalletId(userToUpdate->getWalletId());
+            *userToUpdate = updatedUserCopy;
+            infoChanged = true;
+            std::cout << "Date of Birth da duoc thay doi (tam thoi).\n";
+            break;
+        }
+        case 3: { // Bat/Tat 2FA cho user
+            // Admin khong the bat/tat 2FA cho chinh minh qua menu nay
+            if (userToUpdate->getUsername() == performingAdmin->getUsername()) {
+                 std::cout << "Ban khong the thay doi 2FA cua chinh minh o day.\n";
+                 std::cout << "Vui long su dung menu User sau khi dang nhap.\n";
+                 break; 
+            }
+            if (userToUpdate->has2FA()) {
+                std::cout << "User '" << userToUpdate->getUsername() << "' dang Bat 2FA. Ban muon Tat? (yes/no): ";
+                std::string confirm = getInput("");
+                if (confirm == "yes" || confirm == "y") {
+                    userToUpdate->disable2FA();
+                    infoChanged = true;
+                    std::cout << "2FA da duoc Tat cho user " << userToUpdate->getUsername() << ".\n";
+                }
+            } else {
+                std::cout << "User '" << userToUpdate->getUsername() << "' dang Tat 2FA. Ban muon Bat? (yes/no): ";
+                std::string confirm = getInput("");
+                if (confirm == "yes" || confirm == "y") {
+                    std::string secretKey = userToUpdate->enable2FA(); 
+                    infoChanged = true;
+                    std::cout << "2FA da duoc Bat cho user " << userToUpdate->getUsername() << ". Secret Key: " << secretKey << "\n";
+                    std::cout << "Yeu cau user luu key nay va quet QR (neu co).\n";
+                }
+            }
+            break;
+        }
+        case 4: { // Dieu chinh so du Vi
+            if (!wallet) {
+                std::cout << "Khong tim thay vi cho user nay.\n";
+                break; 
+            }
+            std::cout << "So du hien tai cua " << userToUpdate->getUsername() << ": " << wallet->getBalance() << "\n";
+            std::string amountStr = getInput("Nhap so diem muon Them (+) hoac Bot (-), vd: +100 hoac -50: ");
+            try {
+                double amountAdjustment = std::stod(amountStr);
+                std::string description;
+                std::string logSourceWallet, logDestWallet;
+                double logAmount = amountAdjustment > 0 ? amountAdjustment : -amountAdjustment; // Luon la so duong de ghi log
+
+                if (amountAdjustment > 0) { 
+                    wallet->addBalance(amountAdjustment);
+                    description = "Admin (" + performingAdmin->getUsername() + ") them " + std::to_string(logAmount) + " diem.";
+                    logSourceWallet = "ADMIN_DEPOSIT"; 
+                    logDestWallet = wallet->getId();
+                } else if (amountAdjustment < 0) { 
+                    if (wallet->getBalance() < -amountAdjustment) {
+                        std::cout << "So du khong du de tru.\n";
+                        waitForEnter();
+                        return; 
+                    }
+                    wallet->deductBalance(-amountAdjustment); 
+                    description = "Admin (" + performingAdmin->getUsername() + ") tru " + std::to_string(logAmount) + " diem.";
+                    logSourceWallet = wallet->getId(); // Vi user la nguon bi tru
+                    logDestWallet = "ADMIN_WITHDRAW"; // Vi ao admin nhan lai
+                } else {
+                    std::cout << "Khong co thay doi so du.\n";
+                    break; 
+                }
+                
+                Transaction loggedTransaction(
+                    wallet->generateTransactionId(), // Tao ID giao dich moi
+                    logSourceWallet, 
+                    logDestWallet, 
+                    logAmount, // So tien giao dich (luon duong)
+                    "completed",
+                    description
+                );
+                Database::getInstance().addTransaction(loggedTransaction); 
+                
+                balanceChanged = true;
+                std::cout << "So du da duoc dieu chinh. So du moi: " << wallet->getBalance() << "\n";
+            } catch (const std::exception& e) {
+                std::cout << "Loi nhap lieu so du: " << e.what() << "\n";
+            }
+            break;
+        }
+        default:
+            std::cout << "Lua chon khong hop le.\n";
+            waitForEnter();
+            return; 
+    }
+
+    // Luu thay doi vao CSDL
+    if (infoChanged) {
+        if (Database::getInstance().updateUser(*userToUpdate)) { // Luu thong tin user
+            std::cout << "Thong tin user da duoc luu vao CSDL.\n";
+        } else {
+            std::cout << "Loi: Khong luu duoc thong tin user vao CSDL.\n";
+        }
+    }
+    if (balanceChanged && wallet) { 
+         if (Database::getInstance().updateWallet(*wallet)) { // Luu thong tin wallet
+            std::cout << "Thay doi so du vi da duoc luu vao CSDL.\n";
+        } else {
+            std::cout << "Loi: Khong luu duoc thay doi so du vi vao CSDL.\n";
+        }
+    }
+    
+    if (!infoChanged && !balanceChanged) {
+        std::cout << "Khong co thay doi nao duoc thuc hien.\n";
+    }
+
+    waitForEnter();
 }
 
 void UI::deleteUser() {
@@ -432,7 +623,7 @@ void UI::clearScreen() {
 
 void UI::waitForEnter() {
     std::cout << "\nPress Enter to continue...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 }
 
 std::string UI::getInput(const std::string& prompt) {
@@ -447,11 +638,11 @@ double UI::getAmountInput(const std::string& prompt) {
     while (true) {
         std::cout << prompt;
         if (std::cin >> amount && amount > 0) {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
             return amount;
         }
         std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
         std::cout << "Invalid amount. Please try again.\n";
     }
 }

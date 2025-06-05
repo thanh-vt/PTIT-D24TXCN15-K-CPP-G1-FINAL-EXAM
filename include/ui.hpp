@@ -30,12 +30,12 @@ private:
 
     // User management
     void createUser();
-    void updateUser(std::shared_ptr<User> user);
+    void updateUser(std::shared_ptr<User> performingAdmin);
     void deleteUser();
     void listUsers();
     void changePassword(std::shared_ptr<User> user);
     void viewProfile(std::shared_ptr<User> user);
-
+   
     // Wallet management
     void createWallet(std::shared_ptr<User> user);
     void transferPoints(std::shared_ptr<User> user);
