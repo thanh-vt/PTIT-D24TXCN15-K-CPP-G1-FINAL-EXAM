@@ -8,7 +8,7 @@
 #include <chrono>
 
 #ifdef _WIN32
-#define NOMINMAX  // Prevent Windows.h from defining min/max macros
+#define NOMINMAX // Prevent Windows.h from defining min/max macros
 #endif
 
 #ifdef _WIN32
@@ -20,7 +20,8 @@
 #include <unistd.h>
 #endif
 
-UI& UI::getInstance() {
+UI &UI::getInstance()
+{
     static UI instance;
     return instance;
 }
@@ -29,11 +30,13 @@ UI::UI() {}
 
 UI::~UI() {}
 
-void UI::start() {
+void UI::start()
+{
     // Database is already loaded by the Database singleton constructor
     // No need to load it again here
 
-    while (true) {
+    while (true)
+    {
         clearScreen();
         std::cout << "=== E-Wallet Management System ===\n\n";
         std::cout << "1. Login\n";
@@ -45,31 +48,38 @@ void UI::start() {
         std::cin >> choice;
         std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
-        switch (choice) {
-            case 1: {
-                auto user = login();
-                if (user) {
-                    if (user->isAdmin()) {
-                        showAdminMenu(user);
-                    } else {
-                        showUserMenu(user);
-                    }
+        switch (choice)
+        {
+        case 1:
+        {
+            auto user = login();
+            if (user)
+            {
+                if (user->isAdmin())
+                {
+                    showAdminMenu(user);
                 }
-                break;
+                else
+                {
+                    showUserMenu(user);
+                }
             }
-            case 2:
-                registerUser();
-                break;
-            case 3:
-                return;
-            default:
-                std::cout << "Invalid choice. Please try again.\n";
-                waitForEnter();
+            break;
+        }
+        case 2:
+            registerUser();
+            break;
+        case 3:
+            return;
+        default:
+            std::cout << "Invalid choice. Please try again.\n";
+            waitForEnter();
         }
     }
 }
 
-void UI::showMainMenu() {
+void UI::showMainMenu()
+{
     clearScreen();
     std::cout << "=== Main Menu ===\n\n";
     std::cout << "1. User Management\n";
@@ -78,8 +88,10 @@ void UI::showMainMenu() {
     std::cout << "Enter your choice: ";
 }
 
-void UI::showUserMenu(std::shared_ptr<User> user) {
-    while (true) {
+void UI::showUserMenu(std::shared_ptr<User> user)
+{
+    while (true)
+    {
         clearScreen();
         std::cout << "=== User Menu ===\n\n";
         std::cout << "1. View Profile\n";
@@ -93,37 +105,40 @@ void UI::showUserMenu(std::shared_ptr<User> user) {
         std::cin >> choice;
         std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
-        switch (choice) {
-            case 1:
-                viewProfile(user);
-                break;
-            case 2:
-                changePassword(user);
-                break;
-            case 3:
-                toggle2FA(user);
-                break;
-            case 4:
-                showWalletMenu(user);
-                break;
-            case 5:
-                return;
-            default:
-                std::cout << "Invalid choice. Please try again.\n";
-                waitForEnter();
+        switch (choice)
+        {
+        case 1:
+            viewProfile(user);
+            break;
+        case 2:
+            changePassword(user);
+            break;
+        case 3:
+            toggle2FA(user);
+            break;
+        case 4:
+            showWalletMenu(user);
+            break;
+        case 5:
+            return;
+        default:
+            std::cout << "Invalid choice. Please try again.\n";
+            waitForEnter();
         }
     }
 }
 
-void UI::showAdminMenu(std::shared_ptr<User> admin) {
-    while (true) {
+void UI::showAdminMenu(std::shared_ptr<User> admin)
+{
+    while (true)
+    {
         clearScreen();
         std::cout << "=== Admin Menu ===\n\n";
         std::cout << "1. View All Users\n";
         std::cout << "2. Create User\n";
         std::cout << "3. Update User\n";
         std::cout << "4. Delete User\n";
-        std::cout << "5. View All Wallets\n";
+        std::cout << "5. Transfer Points\n";
         std::cout << "6. Logout\n\n";
         std::cout << "Enter your choice: ";
 
@@ -131,33 +146,37 @@ void UI::showAdminMenu(std::shared_ptr<User> admin) {
         std::cin >> choice;
         std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
-        switch (choice) {
-            case 1:
-                listUsers();
-                break;
-            case 2:
-                createUser();
-                break;
-            case 3:
-                updateUser(admin);
-                break;
-            case 4:
-                deleteUser();
-                break;
-            case 5:
-                // View all wallets
-                break;
-            case 6:
-                return;
-            default:
-                std::cout << "Invalid choice. Please try again.\n";
-                waitForEnter();
+        switch (choice)
+        {
+        case 1:
+            listUsers();
+            break;
+        case 2:
+            createUser();
+            break;
+        case 3:
+            updateUser(admin);
+            break;
+        case 4:
+            deleteUser();
+            break;
+        case 5:
+            // Transfer points to other users
+            transferPoints(admin);
+            break;
+        case 6:
+            return;
+        default:
+            std::cout << "Invalid choice. Please try again.\n";
+            waitForEnter();
         }
     }
 }
 
-void UI::showWalletMenu(std::shared_ptr<User> user) {
-    while (true) {
+void UI::showWalletMenu(std::shared_ptr<User> user)
+{
+    while (true)
+    {
         clearScreen();
         std::cout << "=== Wallet Menu ===\n\n";
         std::cout << "1. View Balance\n";
@@ -170,40 +189,47 @@ void UI::showWalletMenu(std::shared_ptr<User> user) {
         std::cin >> choice;
         std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
-        switch (choice) {
-            case 1:
-                viewBalance(user);
-                break;
-            case 2:
-                transferPoints(user);
-                break;
-            case 3:
-                viewTransactionHistory(user);
-                break;
-            case 4:
-                return;
-            default:
-                std::cout << "Invalid choice. Please try again.\n";
-                waitForEnter();
+        switch (choice)
+        {
+        case 1:
+            viewBalance(user);
+            break;
+        case 2:
+            transferPoints(user);
+            break;
+        case 3:
+            viewTransactionHistory(user);
+            break;
+        case 4:
+            return;
+        default:
+            std::cout << "Invalid choice. Please try again.\n";
+            waitForEnter();
         }
     }
 }
 
-std::string UI::getPasswordInput(const std::string& prompt) {
+std::string UI::getPasswordInput(const std::string &prompt)
+{
     std::string password;
     std::cout << prompt;
 
 #ifdef _WIN32
     char ch;
-    while ((ch = _getch()) != '\r') {  // Read until Enter key
-        if (ch == '\b') {  // Backspace
-            if (!password.empty()) {
+    while ((ch = _getch()) != '\r')
+    { // Read until Enter key
+        if (ch == '\b')
+        { // Backspace
+            if (!password.empty())
+            {
                 password.pop_back();
-                std::cout << "\b \b";  // Move back, print space, move back again
+                std::cout << "\b \b"; // Move back, print space, move back again
             }
-        } else {
+        }
+        else
+        {
             password += ch;
-            std::cout << '*';  // Print asterisk instead of the character
+            std::cout << '*'; // Print asterisk instead of the character
         }
     }
     std::cout << std::endl;
@@ -212,7 +238,7 @@ std::string UI::getPasswordInput(const std::string& prompt) {
     termios oldt;
     tcgetattr(STDIN_FILENO, &oldt);
     termios newt = oldt;
-    newt.c_lflag &= ~ECHO;  // Disable echo
+    newt.c_lflag &= ~ECHO; // Disable echo
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     // Read password
@@ -225,7 +251,8 @@ std::string UI::getPasswordInput(const std::string& prompt) {
     return password;
 }
 
-std::shared_ptr<User> UI::login() {
+std::shared_ptr<User> UI::login()
+{
     clearScreen();
     std::cout << "=== Login ===\n\n";
 
@@ -233,13 +260,15 @@ std::shared_ptr<User> UI::login() {
     std::string password = getPasswordInput("Password: ");
 
     auto user = Database::getInstance().getUser(username);
-    if (!user || !user->verifyPassword(password)) {
+    if (!user || !user->verifyPassword(password))
+    {
         std::cout << "Invalid username or password.\n";
         waitForEnter();
         return nullptr;
     }
 
-    if (user->has2FA() && !verify2FA(user)) {
+    if (user->has2FA() && !verify2FA(user))
+    {
         std::cout << "2FA verification failed.\n";
         waitForEnter();
         return nullptr;
@@ -248,24 +277,29 @@ std::shared_ptr<User> UI::login() {
     return user;
 }
 
-bool UI::authenticateUser(const std::string& username, const std::string& password) {
+bool UI::authenticateUser(const std::string &username, const std::string &password)
+{
     auto user = Database::getInstance().getUser(username);
     return user && user->verifyPassword(password);
 }
 
-bool UI::verify2FA(std::shared_ptr<User> user) {
-    if (!user->has2FA()) return true;
+bool UI::verify2FA(std::shared_ptr<User> user)
+{
+    if (!user->has2FA())
+        return true;
 
     std::string otp = getInput("Enter 2FA code: ");
     return user->verify2FA(otp);
 }
 
-void UI::createUser() {
+void UI::createUser()
+{
     clearScreen();
     std::cout << "=== Create User ===\n\n";
 
     std::string username = getInput("Username: ");
-    if (Database::getInstance().getUser(username)) {
+    if (Database::getInstance().getUser(username))
+    {
         std::cout << "Username already exists.\n";
         waitForEnter();
         return;
@@ -276,15 +310,16 @@ void UI::createUser() {
 
     // Create new user with a generated password
     User newUser(username, fullname, dob);
-    std::string generatedPassword = newUser.generatePassword();  // Generate a new password
-    newUser.setPassword(generatedPassword);  // Set the generated password
+    std::string generatedPassword = newUser.generatePassword(); // Generate a new password
+    newUser.setPassword(generatedPassword);                     // Set the generated password
 
     // Create wallet for the user
-    std::string walletId = "W" + username;  // Simple wallet ID generation
-    Wallet wallet(walletId, 0.0);  // Create wallet with 0 balance
+    std::string walletId = "W" + username; // Simple wallet ID generation
+    Wallet wallet(walletId, 0.0);          // Create wallet with 0 balance
 
     // First add the wallet
-    if (!Database::getInstance().addWallet(wallet)) {
+    if (!Database::getInstance().addWallet(wallet))
+    {
         std::cout << "Failed to create wallet for user.\n";
         waitForEnter();
         return;
@@ -294,16 +329,20 @@ void UI::createUser() {
     newUser.setWalletId(walletId);
 
     // Then add the user
-    if (Database::getInstance().addUser(newUser)) {
+    if (Database::getInstance().addUser(newUser))
+    {
         std::cout << "\nUser created successfully!\n";
         std::cout << "Generated password: " << generatedPassword << "\n";
         std::cout << "Please save this password securely.\n";
 
         // Verify the save was successful
-        if (!Database::getInstance().saveToFiles()) {
+        if (!Database::getInstance().saveToFiles())
+        {
             std::cout << "Warning: Failed to save changes to database.\n";
         }
-    } else {
+    }
+    else
+    {
         std::cout << "Failed to create user.\n";
         // Clean up the wallet if user creation failed
         Database::getInstance().deleteWallet(walletId);
@@ -311,54 +350,59 @@ void UI::createUser() {
     waitForEnter();
 }
 
-void UI::updateUser(std::shared_ptr<User> performingAdmin) {
+void UI::updateUser(std::shared_ptr<User> performingAdmin)
+{
     clearScreen();
-    std::cout << "=== Cap Nhat Thong Tin User (Admin) ===\n\n";
+    std::cout << "=== Update User Information (Admin) ===\n\n";
 
-    
-    std::string usernameToUpdate = getInput("Nhap username cua user can cap nhat: ");
-    
-    if (usernameToUpdate == performingAdmin->getUsername()) {
-        std::cout << "De cap nhat thong tin ca nhan cua ban (admin),\n";
-        std::cout << "vui long su dung cac tuy chon trong menu User (sau khi logout va login lai nhu user thuong).\n";
-        std::cout << "Chuc nang nay dung de cap nhat user khac.\n";
-        
+    std::string usernameToUpdate = getInput("Enter username of user to update: ");
+
+    if (usernameToUpdate == performingAdmin->getUsername())
+    {
+        std::cout << "To update your personal information (admin),\n";
+        std::cout << "please use the options in the User menu (after logging out and logging back in as a regular user).\n";
+        std::cout << "This function is for updating other users.\n";
+
         waitForEnter();
         return;
     }
     // Kiem tra neu admin khac dang co gang cap nhat "admin" chinh (neu co quy uoc nay)
-    if (usernameToUpdate == "admin" && performingAdmin->getUsername() != "admin") { 
-        std::cout << "Ban khong co quyen cap nhat thong tin admin chinh.\n";
+    if (usernameToUpdate == "admin" && performingAdmin->getUsername() != "admin")
+    {
+        std::cout << "You don't have permission to update the main admin account.\n";
         waitForEnter();
         return;
     }
 
     auto userToUpdate = Database::getInstance().getUser(usernameToUpdate);
-    if (!userToUpdate) {
-        std::cout << "User '" << usernameToUpdate << "' khong tim thay.\n";
+    if (!userToUpdate)
+    {
+        std::cout << "User '" << usernameToUpdate << "' not found.\n";
         waitForEnter();
         return;
     }
 
-    std::cout << "\nThong tin hien tai cua user: " << userToUpdate->getUsername() << "\n";
+    std::cout << "\nCurrent information for user: " << userToUpdate->getUsername() << "\n";
     std::cout << "1. Full Name: " << userToUpdate->getFullname() << "\n";
     auto dob_time_t = std::chrono::system_clock::to_time_t(userToUpdate->getDateOfBirth());
     std::cout << "2. Date of Birth (YYYY-MM-DD): " << std::put_time(std::localtime(&dob_time_t), "%Y-%m-%d") << "\n";
-    std::cout << "3. Trang thai 2FA: " << (userToUpdate->has2FA() ? "Bat" : "Tat") << "\n";
-    
+    std::cout << "3. 2FA Status: " << (userToUpdate->has2FA() ? "Enabled" : "Disabled") << "\n";
+
     auto wallet = Database::getInstance().getWallet(userToUpdate->getWalletId());
-    if (wallet) {
-        std::cout << "4. So du Vi: " << std::fixed << std::setprecision(2) << wallet->getBalance() << " diem\n";
-    } else {
-        std::cout << "4. So du Vi: Khong tim thay vi.\n";
+    if (wallet)
+    {
+        std::cout << "4. Wallet Balance: " << std::fixed << std::setprecision(2) << wallet->getBalance() << " points\n";
+    }
+    else
+    {
+        std::cout << "4. Wallet Balance: Wallet not found.\n";
     }
     std::cout << "-------------------------------------\n";
-    std::cout << "Ban muon cap nhat thong tin nao? (Nhap so, 0 de huy):\n";
+    std::cout << "Which information would you like to update? (Enter number, 0 to cancel):\n";
     std::cout << "1. Full Name\n";
     std::cout << "2. Date of Birth\n";
-    std::cout << "3. Bat/Tat 2FA (cho user)\n";
-    std::cout << "4. Dieu chinh so du Vi\n"; 
-    std::cout << "Lua chon cua ban: ";
+    std::cout << "3. Enable/Disable 2FA (for user)\n";
+    std::cout << "Your choice: ";
 
     int choice;
     std::cin >> choice;
@@ -367,200 +411,191 @@ void UI::updateUser(std::shared_ptr<User> performingAdmin) {
     bool infoChanged = false;
     bool balanceChanged = false;
 
-    switch (choice) {
-        case 0:
-            std::cout << "Huy cap nhat.\n";
-            waitForEnter();
-            return;
-        case 1: { // Cap nhat Full Name
-            std::string newFullname = getInput("Nhap Full Name moi: ");
-           
-            User updatedUserCopy(userToUpdate->getUsername(), newFullname, userToUpdate->getDateOfBirth(), userToUpdate->isAdmin());
-            updatedUserCopy.setPasswordHash(userToUpdate->getPasswordHash()); 
-            if (userToUpdate->has2FA()) updatedUserCopy.enable2FA(userToUpdate->getSecretKey()); 
-            updatedUserCopy.setWalletId(userToUpdate->getWalletId());
-            *userToUpdate = updatedUserCopy; 
-            infoChanged = true;
-            std::cout << "Full Name da duoc thay doi (tam thoi).\n";
-            break;
-        }
-        case 2: { // Cap nhat Ngay Sinh
-            auto newDob = getDateInput("Nhap Date of Birth moi (YYYY-MM-DD): ");
-          
-            User updatedUserCopy(userToUpdate->getUsername(), userToUpdate->getFullname(), newDob, userToUpdate->isAdmin());
-            updatedUserCopy.setPasswordHash(userToUpdate->getPasswordHash());
-            if (userToUpdate->has2FA()) updatedUserCopy.enable2FA(userToUpdate->getSecretKey());
-            updatedUserCopy.setWalletId(userToUpdate->getWalletId());
-            *userToUpdate = updatedUserCopy;
-            infoChanged = true;
-            std::cout << "Date of Birth da duoc thay doi (tam thoi).\n";
-            break;
-        }
-        case 3: { // Bat/Tat 2FA cho user
-            // Admin khong the bat/tat 2FA cho chinh minh qua menu nay
-            if (userToUpdate->getUsername() == performingAdmin->getUsername()) {
-                 std::cout << "Ban khong the thay doi 2FA cua chinh minh o day.\n";
-                 std::cout << "Vui long su dung menu User sau khi dang nhap.\n";
-                 break; 
-            }
-            if (userToUpdate->has2FA()) {
-                std::cout << "User '" << userToUpdate->getUsername() << "' dang Bat 2FA. Ban muon Tat? (yes/no): ";
-                std::string confirm = getInput("");
-                if (confirm == "yes" || confirm == "y") {
-                    userToUpdate->disable2FA();
-                    infoChanged = true;
-                    std::cout << "2FA da duoc Tat cho user " << userToUpdate->getUsername() << ".\n";
-                }
-            } else {
-                std::cout << "User '" << userToUpdate->getUsername() << "' dang Tat 2FA. Ban muon Bat? (yes/no): ";
-                std::string confirm = getInput("");
-                if (confirm == "yes" || confirm == "y") {
-                    std::string secretKey = userToUpdate->enable2FA(); 
-                    infoChanged = true;
-                    std::cout << "2FA da duoc Bat cho user " << userToUpdate->getUsername() << ". Secret Key: " << secretKey << "\n";
-                    std::cout << "Yeu cau user luu key nay va quet QR (neu co).\n";
-                }
-            }
-            break;
-        }
-        case 4: { // Dieu chinh so du Vi
-            if (!wallet) {
-                std::cout << "Khong tim thay vi cho user nay.\n";
-                break; 
-            }
-            std::cout << "So du hien tai cua " << userToUpdate->getUsername() << ": " << wallet->getBalance() << "\n";
-            std::string amountStr = getInput("Nhap so diem muon Them (+) hoac Bot (-), vd: +100 hoac -50: ");
-            try {
-                double amountAdjustment = std::stod(amountStr);
-                std::string description;
-                std::string logSourceWallet, logDestWallet;
-                double logAmount = amountAdjustment > 0 ? amountAdjustment : -amountAdjustment; // Luon la so duong de ghi log
+    switch (choice)
+    {
+    case 0:
+        std::cout << "Update cancelled.\n";
+        waitForEnter();
+        return;
+    case 1:
+    { // Cap nhat Full Name
+        std::string newFullname = getInput("Enter new Full Name: ");
 
-                if (amountAdjustment > 0) { 
-                    wallet->addBalance(amountAdjustment);
-                    description = "Admin (" + performingAdmin->getUsername() + ") them " + std::to_string(logAmount) + " diem.";
-                    logSourceWallet = "ADMIN_DEPOSIT"; 
-                    logDestWallet = wallet->getId();
-                } else if (amountAdjustment < 0) { 
-                    if (wallet->getBalance() < -amountAdjustment) {
-                        std::cout << "So du khong du de tru.\n";
-                        waitForEnter();
-                        return; 
-                    }
-                    wallet->deductBalance(-amountAdjustment); 
-                    description = "Admin (" + performingAdmin->getUsername() + ") tru " + std::to_string(logAmount) + " diem.";
-                    logSourceWallet = wallet->getId(); // Vi user la nguon bi tru
-                    logDestWallet = "ADMIN_WITHDRAW"; // Vi ao admin nhan lai
-                } else {
-                    std::cout << "Khong co thay doi so du.\n";
-                    break; 
-                }
-                
-                Transaction loggedTransaction(
-                    wallet->generateTransactionId(), // Tao ID giao dich moi
-                    logSourceWallet, 
-                    logDestWallet, 
-                    logAmount, // So tien giao dich (luon duong)
-                    "completed",
-                    description
-                );
-                Database::getInstance().addTransaction(loggedTransaction); 
-                
-                balanceChanged = true;
-                std::cout << "So du da duoc dieu chinh. So du moi: " << wallet->getBalance() << "\n";
-            } catch (const std::exception& e) {
-                std::cout << "Loi nhap lieu so du: " << e.what() << "\n";
-            }
+        User updatedUserCopy(userToUpdate->getUsername(), newFullname, userToUpdate->getDateOfBirth(), userToUpdate->isAdmin());
+        updatedUserCopy.setPasswordHash(userToUpdate->getPasswordHash());
+        if (userToUpdate->has2FA())
+            updatedUserCopy.enable2FA(userToUpdate->getSecretKey());
+        updatedUserCopy.setWalletId(userToUpdate->getWalletId());
+        *userToUpdate = updatedUserCopy;
+        infoChanged = true;
+        std::cout << "Full Name has been changed (temporarily).\n";
+        break;
+    }
+    case 2:
+    { // Cap nhat Ngay Sinh
+        auto newDob = getDateInput("Enter new Date of Birth (YYYY-MM-DD): ");
+
+        User updatedUserCopy(userToUpdate->getUsername(), userToUpdate->getFullname(), newDob, userToUpdate->isAdmin());
+        updatedUserCopy.setPasswordHash(userToUpdate->getPasswordHash());
+        if (userToUpdate->has2FA())
+            updatedUserCopy.enable2FA(userToUpdate->getSecretKey());
+        updatedUserCopy.setWalletId(userToUpdate->getWalletId());
+        *userToUpdate = updatedUserCopy;
+        infoChanged = true;
+        std::cout << "Date of Birth has been changed (temporarily).\n";
+        break;
+    }
+    case 3:
+    { // Bat/Tat 2FA cho user
+        // Admin khong the bat/tat 2FA cho chinh minh qua menu nay
+        if (userToUpdate->getUsername() == performingAdmin->getUsername())
+        {
+            std::cout << "You cannot change your own 2FA settings here.\n";
+            std::cout << "Please use the User menu after logging in.\n";
             break;
         }
-        default:
-            std::cout << "Lua chon khong hop le.\n";
-            waitForEnter();
-            return; 
+        if (userToUpdate->has2FA())
+        {
+            std::cout << "User '" << userToUpdate->getUsername() << "' has 2FA Enabled. Do you want to Disable? (yes/no): ";
+            std::string confirm = getInput("");
+            if (confirm == "yes" || confirm == "y")
+            {
+                userToUpdate->disable2FA();
+                infoChanged = true;
+                std::cout << "2FA has been Disabled for user " << userToUpdate->getUsername() << ".\n";
+            }
+        }
+        else
+        {
+            std::cout << "User '" << userToUpdate->getUsername() << "' has 2FA Disabled. Do you want to Enable? (yes/no): ";
+            std::string confirm = getInput("");
+            if (confirm == "yes" || confirm == "y")
+            {
+                std::string secretKey = userToUpdate->enable2FA();
+                infoChanged = true;
+                std::cout << "2FA has been Enabled for user " << userToUpdate->getUsername() << ". Secret Key: " << secretKey << "\n";
+                std::cout << "Please ask the user to save this key and scan QR (if available).\n";
+            }
+        }
+        break;
+    }
+    default:
+        std::cout << "Invalid choice.\n";
+        waitForEnter();
+        return;
     }
 
     // Luu thay doi vao CSDL
-    if (infoChanged) {
-        if (Database::getInstance().updateUser(*userToUpdate)) { // Luu thong tin user
-            std::cout << "Thong tin user da duoc luu vao CSDL.\n";
-        } else {
-            std::cout << "Loi: Khong luu duoc thong tin user vao CSDL.\n";
+    if (infoChanged)
+    {
+        if (Database::getInstance().updateUser(*userToUpdate))
+        { // Luu thong tin user
+            std::cout << "User information has been saved to database.\n";
+        }
+        else
+        {
+            std::cout << "Error: Failed to save user information to database.\n";
         }
     }
-    if (balanceChanged && wallet) { 
-         if (Database::getInstance().updateWallet(*wallet)) { // Luu thong tin wallet
-            std::cout << "Thay doi so du vi da duoc luu vao CSDL.\n";
-        } else {
-            std::cout << "Loi: Khong luu duoc thay doi so du vi vao CSDL.\n";
+    if (balanceChanged && wallet)
+    {
+        if (Database::getInstance().updateWallet(*wallet))
+        { // Luu thong tin wallet
+            std::cout << "Wallet balance changes have been saved to database.\n";
+        }
+        else
+        {
+            std::cout << "Error: Failed to save wallet balance changes to database.\n";
         }
     }
-    
-    if (!infoChanged && !balanceChanged) {
-        std::cout << "Khong co thay doi nao duoc thuc hien.\n";
+
+    if (!infoChanged && !balanceChanged)
+    {
+        std::cout << "No changes were made.\n";
     }
 
     waitForEnter();
 }
 
-void UI::deleteUser() {
+void UI::deleteUser()
+{
     clearScreen();
     std::cout << "=== Delete User ===\n\n";
 
     std::string username = getInput("Enter username to delete: ");
-    if (username == "admin") {
+    if (username == "admin")
+    {
         std::cout << "Cannot delete admin user.\n";
         waitForEnter();
         return;
     }
 
-    if (Database::getInstance().deleteUser(username)) {
+    if (Database::getInstance().deleteUser(username))
+    {
         std::cout << "User deleted successfully.\n";
-    } else {
+    }
+    else
+    {
         std::cout << "Failed to delete user.\n";
     }
     waitForEnter();
 }
 
-void UI::listUsers() {
+void UI::listUsers()
+{
     clearScreen();
     std::cout << "=== User List ===\n\n";
 
     auto users = Database::getInstance().getAllUsers();
-    for (const auto& user : users) {
+    for (const auto &user : users)
+    {
         std::cout << "Username: " << user->getUsername() << "\n";
         std::cout << "Full Name: " << user->getFullname() << "\n";
         std::cout << "2FA Enabled: " << (user->has2FA() ? "Yes" : "No") << "\n";
         std::cout << "Is Admin: " << (user->isAdmin() ? "Yes" : "No") << "\n";
+        auto wallet = Database::getInstance().getWallet(user->getWalletId());
+        if (wallet)
+        {
+            std::cout << "Wallet ID: " << wallet->getId() << "\n";
+            std::cout << "Balance: " << std::fixed << std::setprecision(2) << wallet->getBalance() << " points\n";
+        }
         std::cout << "------------------------\n";
     }
     waitForEnter();
 }
 
-void UI::viewBalance(std::shared_ptr<User> user) {
+void UI::viewBalance(std::shared_ptr<User> user)
+{
     clearScreen();
     std::cout << "=== Wallet Balance ===\n\n";
 
     auto wallet = Database::getInstance().getWallet(user->getWalletId());
-    if (wallet) {
+    if (wallet)
+    {
         std::cout << "Wallet ID: " << wallet->getId() << "\n";
         std::cout << "Balance: " << std::fixed << std::setprecision(2) << wallet->getBalance() << " points\n";
-    } else {
+    }
+    else
+    {
         std::cout << "Wallet not found.\n";
     }
     waitForEnter();
 }
 
-void UI::createWallet(std::shared_ptr<User> user) {
+void UI::createWallet(std::shared_ptr<User> user)
+{
     // NOT implemented
 }
 
-void UI::transferPoints(std::shared_ptr<User> user) {
+void UI::transferPoints(std::shared_ptr<User> user)
+{
     clearScreen();
     std::cout << "=== Transfer Points ===\n\n";
 
     std::string destinationId = getInput("Enter destination wallet ID: ");
     auto destinationWallet = Database::getInstance().getWallet(destinationId);
-    if (!destinationWallet) {
+    if (!destinationWallet)
+    {
         std::cout << "Destination wallet not found.\n";
         waitForEnter();
         return;
@@ -570,31 +605,53 @@ void UI::transferPoints(std::shared_ptr<User> user) {
     std::string description = getInput("Enter description (optional): ");
 
     auto sourceWallet = Database::getInstance().getWallet(user->getWalletId());
-    if (!sourceWallet) {
+    if (!sourceWallet)
+    {
         std::cout << "Source wallet not found.\n";
         waitForEnter();
         return;
     }
 
-    if (sourceWallet->transfer(*destinationWallet, amount, description)) {
-        std::cout << "Transfer successful.\n";
-    } else {
+    if (sourceWallet->transfer(*destinationWallet, amount, description))
+    {
+        // Lay giao dich cuoi cung tu sourceWallet
+        const auto &transactions = sourceWallet->getTransactionHistory();
+        if (!transactions.empty())
+        {
+            const auto &latestTransaction = transactions.back();
+            // Luu giao dich vao CSDL
+            if (Database::getInstance().addTransaction(latestTransaction))
+            {
+                std::cout << "Transfer successful.\n";
+            }
+            else
+            {
+                std::cout << "Transfer completed but failed to save transaction history.\n";
+            }
+        }
+    }
+    else
+    {
         std::cout << "Transfer failed.\n";
     }
     waitForEnter();
 }
 
-void UI::viewTransactionHistory(std::shared_ptr<User> user) {
-    if (!user) {
+void UI::viewTransactionHistory(std::shared_ptr<User> user)
+{
+    if (!user)
+    {
         std::cout << "No user selected.\n";
         return;
     }
 
     std::cout << "\nTransaction History for " << user->getUsername() << ":\n";
     auto wallet = Database::getInstance().getWallet(user->getWalletId());
-    if (wallet) {
+    if (wallet)
+    {
         std::cout << "\nWallet ID: " << wallet->getId() << "\n";
-        for (const auto& transaction : wallet->getTransactionHistory()) {
+        for (const auto &transaction : wallet->getTransactionHistory())
+        {
             std::cout << "Transaction ID: " << transaction.id << "\n";
             std::cout << "From: " << transaction.fromWalletId << "\n";
             std::cout << "To: " << transaction.toWalletId << "\n";
@@ -607,13 +664,16 @@ void UI::viewTransactionHistory(std::shared_ptr<User> user) {
             std::cout << "Timestamp: " << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S") << "\n";
             std::cout << "------------------------\n";
         }
-    } else {
+    }
+    else
+    {
         std::cout << "No wallet found for this user.\n";
     }
     waitForEnter();
 }
 
-void UI::clearScreen() {
+void UI::clearScreen()
+{
 #ifdef _WIN32
     system("cls");
 #else
@@ -621,23 +681,28 @@ void UI::clearScreen() {
 #endif
 }
 
-void UI::waitForEnter() {
+void UI::waitForEnter()
+{
     std::cout << "\nPress Enter to continue...";
     std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 }
 
-std::string UI::getInput(const std::string& prompt) {
+std::string UI::getInput(const std::string &prompt)
+{
     std::string input;
     std::cout << prompt;
     std::getline(std::cin, input);
     return input;
 }
 
-double UI::getAmountInput(const std::string& prompt) {
+double UI::getAmountInput(const std::string &prompt)
+{
     double amount;
-    while (true) {
+    while (true)
+    {
         std::cout << prompt;
-        if (std::cin >> amount && amount > 0) {
+        if (std::cin >> amount && amount > 0)
+        {
             std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
             return amount;
         }
@@ -647,27 +712,32 @@ double UI::getAmountInput(const std::string& prompt) {
     }
 }
 
-std::chrono::system_clock::time_point UI::getDateInput(const std::string& prompt) {
-    while (true) {
+std::chrono::system_clock::time_point UI::getDateInput(const std::string &prompt)
+{
+    while (true)
+    {
         std::string dateStr = getInput(prompt);
         std::tm tm = {};
         std::stringstream ss(dateStr);
         ss >> std::get_time(&tm, "%Y-%m-%d");
 
-        if (!ss.fail()) {
+        if (!ss.fail())
+        {
             return std::chrono::system_clock::from_time_t(std::mktime(&tm));
         }
         std::cout << "Invalid date format. Please use YYYY-MM-DD.\n";
     }
 }
 
-void UI::registerUser() {
+void UI::registerUser()
+{
     clearScreen();
     std::cout << "=== User Registration ===\n\n";
 
     // Get username
     std::string username = getInput("Username: ");
-    if (Database::getInstance().getUser(username)) {
+    if (Database::getInstance().getUser(username))
+    {
         std::cout << "Username already exists.\n";
         waitForEnter();
         return;
@@ -681,14 +751,17 @@ void UI::registerUser() {
 
     // Get password
     std::string password;
-    while (true) {
+    while (true)
+    {
         password = getPasswordInput("Password: ");
-        if (password.length() < 8) {
+        if (password.length() < 8)
+        {
             std::cout << "Password must be at least 8 characters long.\n";
             continue;
         }
         std::string confirmPassword = getPasswordInput("Confirm Password: ");
-        if (password != confirmPassword) {
+        if (password != confirmPassword)
+        {
             std::cout << "Passwords do not match.\n";
             continue;
         }
@@ -700,74 +773,98 @@ void UI::registerUser() {
     newUser.setPassword(password);
 
     // Create wallet for the user
-    std::string walletId = "W" + username;  // Simple wallet ID generation
-    Wallet wallet(walletId);  // Create a Wallet object directly
-    if (Database::getInstance().addWallet(wallet)) {  // Pass the Wallet object by reference
+    std::string walletId = "W" + username; // Simple wallet ID generation
+    Wallet wallet(walletId);               // Create a Wallet object directly
+    if (Database::getInstance().addWallet(wallet))
+    { // Pass the Wallet object by reference
         newUser.setWalletId(walletId);
 
         // Add user to database
-        if (Database::getInstance().addUser(newUser)) {
+        if (Database::getInstance().addUser(newUser))
+        {
             std::cout << "\nRegistration successful!\n";
             std::cout << "You can now login with your username and password.\n";
-        } else {
+        }
+        else
+        {
             std::cout << "\nUser registration failed. Please try again.\n";
         }
-    } else {
+    }
+    else
+    {
         std::cout << "\nWallet creation failed. Please try again.\n";
     }
     waitForEnter();
 }
 
-void UI::toggle2FA(std::shared_ptr<User> user) {
+void UI::toggle2FA(std::shared_ptr<User> user)
+{
     clearScreen();
     std::cout << "=== 2FA Settings ===\n\n";
 
-    if (user->has2FA()) {
+    if (user->has2FA())
+    {
         std::cout << "2FA is currently enabled.\n";
         std::string otp = getInput("Enter current 2FA code to disable: ");
-        if (user->verify2FA(otp)) {
+        if (user->verify2FA(otp))
+        {
             user->disable2FA();
             // Save changes to database
-            if (Database::getInstance().updateUser(*user)) {
+            if (Database::getInstance().updateUser(*user))
+            {
                 std::cout << "2FA has been disabled successfully.\n";
-            } else {
+            }
+            else
+            {
                 std::cout << "Failed to save changes to database.\n";
             }
-        } else {
+        }
+        else
+        {
             std::cout << "Invalid 2FA code. 2FA remains enabled.\n";
         }
-    } else {
+    }
+    else
+    {
         std::cout << "2FA is currently disabled.\n";
         std::cout << "Enabling 2FA will require you to enter a code from your authenticator app each time you log in.\n";
         std::string choice = getInput("Do you want to enable 2FA? (yes/no): ");
 
-        if (choice == "yes" || choice == "y" || choice == "Y" || choice == "Yes") {
+        if (choice == "yes" || choice == "y" || choice == "Y" || choice == "Yes")
+        {
             std::string secretKey = user->enable2FA();
             // Save changes to database
-            if (Database::getInstance().updateUser(*user)) {
+            if (Database::getInstance().updateUser(*user))
+            {
                 std::cout << "\n2FA has been enabled!\n";
                 std::cout << "Please scan this QR code with your authenticator app:\n";
                 std::cout << "Secret Key: " << secretKey << "\n";
                 std::cout << "You can also manually enter this key in your authenticator app.\n";
-            } else {
+            }
+            else
+            {
                 std::cout << "Failed to save changes to database.\n";
                 // Revert the changes if save failed
                 user->disable2FA();
             }
-        } else {
+        }
+        else
+        {
             std::cout << "2FA remains disabled.\n";
         }
     }
     waitForEnter();
 }
 
-void UI::changePassword(std::shared_ptr<User> user) {
+void UI::changePassword(std::shared_ptr<User> user)
+{
     clearScreen();
     std::cout << "=== Change Password ===\n\n";
 
     // Get current password
     std::string currentPassword = getPasswordInput("Enter current password: ");
-    if (!user->verifyPassword(currentPassword)) {
+    if (!user->verifyPassword(currentPassword))
+    {
         std::cout << "Current password is incorrect.\n";
         waitForEnter();
         return;
@@ -775,14 +872,17 @@ void UI::changePassword(std::shared_ptr<User> user) {
 
     // Get new password
     std::string newPassword;
-    while (true) {
+    while (true)
+    {
         newPassword = getPasswordInput("Enter new password: ");
-        if (newPassword.length() < 8) {
+        if (newPassword.length() < 8)
+        {
             std::cout << "Password must be at least 8 characters long.\n";
             continue;
         }
         std::string confirmPassword = getPasswordInput("Confirm new password: ");
-        if (newPassword != confirmPassword) {
+        if (newPassword != confirmPassword)
+        {
             std::cout << "Passwords do not match.\n";
             continue;
         }
@@ -793,15 +893,19 @@ void UI::changePassword(std::shared_ptr<User> user) {
     user->setPassword(newPassword);
 
     // Save changes to database
-    if (Database::getInstance().updateUser(*user)) {
+    if (Database::getInstance().updateUser(*user))
+    {
         std::cout << "Password changed successfully.\n";
-    } else {
+    }
+    else
+    {
         std::cout << "Failed to save changes to database.\n";
     }
     waitForEnter();
 }
 
-void UI::viewProfile(std::shared_ptr<User> user) {
+void UI::viewProfile(std::shared_ptr<User> user)
+{
     clearScreen();
     std::cout << "=== User Profile ===\n\n";
 
@@ -822,11 +926,14 @@ void UI::viewProfile(std::shared_ptr<User> user) {
 
     // Display wallet information
     auto wallet = Database::getInstance().getWallet(user->getWalletId());
-    if (wallet) {
+    if (wallet)
+    {
         std::cout << "\nWallet Information:\n";
         std::cout << "Wallet ID: " << wallet->getId() << "\n";
         std::cout << "Balance: " << std::fixed << std::setprecision(2) << wallet->getBalance() << " points\n";
-    } else {
+    }
+    else
+    {
         std::cout << "\nNo wallet associated with this account.\n";
     }
 
