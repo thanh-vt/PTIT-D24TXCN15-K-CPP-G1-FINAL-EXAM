@@ -17,8 +17,8 @@ Hệ thống quản lý ví điện tử được phát triển bằng C++ với
 | STT | Họ và tên | Mã sinh viên | Công việc được giao |
 |-----|-----------|--------------|---------------------|
 | 1 | **Vũ Tất Thành** | K24DTCN638 | Thiết kế UI, giao diện người dùng, kiểm thử chất lượng |
-| 2 | **Nguyễn Quang Đạo** | K24DTCN--- | Phát triển chức năng đăng nhập/đăng ký, quản lý session |
-| 3 | **Nguyễn Việt** | K24DTCN--- | Thiết kế hệ thống ví điện tử, xử lý giao dịch |
+| 2 | **Nguyễn Quang Đạo** | K24DTCN584 | Phát triển chức năng đăng nhập/đăng ký, quản lý session |
+| 3 | **Nguyễn Việt** | K24DTCN651 | Thiết kế hệ thống ví điện tử, xử lý giao dịch |
 | 4 | **Nguyễn Viết Tùng** | K24DTCN633 | Thiết kế database, hệ thống admin, tích hợp tổng thể |
 
 ### 📋 Chi tiết công việc thực hiện
@@ -29,12 +29,12 @@ Hệ thống quản lý ví điện tử được phát triển bằng C++ với
 - Kiểm thử và đảm bảo chất lượng sản phẩm
 - Tối ưu hóa trải nghiệm người dùng
 
-**Nguyễn Quang Đạo:**
+**Nguyễn Văn Việt:**
 - Phát triển module đăng nhập và đăng ký tài khoản
 - Xử lý xác thực người dùng và quản lý session
 - Tích hợp bảo mật cho hệ thống đăng nhập
 
-**Nguyễn Việt:**
+**Nguyễn Quang Đạo:**
 - Thiết kế và phát triển hệ thống ví điểm thưởng
 - Xử lý giao dịch chuyển điểm giữa các ví
 - Đảm bảo tính atomic của các giao dịch
@@ -223,6 +223,6 @@ Sau khi đăng nhập admin thành công, bạn sẽ thấy menu admin với 11 
 
 **Nhóm 1 - Lớp D24TXCN15-K**
 - Vũ Tất Thành (K24DTCN638)
-- Nguyễn Quang Đạo
-- Nguyễn Việt
+- Nguyễn Quang Đạo (K24DTCN584)
+- Nguyễn Văn Việt (K24DTCN5651)
 - Nguyễn Viết Tùng (K24DTCN633)
