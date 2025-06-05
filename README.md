@@ -14,12 +14,12 @@ Hệ thống quản lý ví điện tử được phát triển bằng C++ với
 
 ## 👥 Thành viên nhóm và phân công công việc
 
-| STT | Họ và tên | Mã sinh viên | Công việc được giao |
-|-----|-----------|--------------|---------------------|
-| 1 | **Vũ Tất Thành** | K24DTCN638 | Thiết kế UI, giao diện người dùng, kiểm thử chất lượng |
-| 2 | **Nguyễn Quang Đạo** | K24DTCN584 | Phát triển chức năng đăng nhập/đăng ký, quản lý session |
-| 3 | **Nguyễn Việt** | K24DTCN651 | Thiết kế hệ thống ví điện tử, xử lý giao dịch |
-| 4 | **Nguyễn Viết Tùng** | K24DTCN633 | Thiết kế database, hệ thống admin, tích hợp tổng thể |
+| STT | Họ và tên            | Mã sinh viên | Công việc được giao                                                             |
+|-----|----------------------|--------------|---------------------------------------------------------------------------------|
+| 1 | **Vũ Tất Thành**     | K24DTCN638 | Thiết kế UI, giao diện người dùng, đăng nhập, đăng ký, 2FA, kiểm thử chất lượng |
+| 2 | **Nguyễn Quang Đạo** | K24DTCN584 | Thiết kế hệ thống ví điện tử, xử lý giao dịch, lịch sử giao dịch                |
+| 3 | **Nguyễn Văn Việt**  | K24DTCN651 | Phát triển chức năng thêm sửa xóa user (admin)                                  |
+| 4 | **Nguyễn Viết Tùng** | K24DTCN633 | Thiết kế database,  tích hợp tổng thể                                           |
 
 ### 📋 Chi tiết công việc thực hiện
 
@@ -27,23 +27,20 @@ Hệ thống quản lý ví điện tử được phát triển bằng C++ với
 - Thiết kế giao diện dòng lệnh (CLI) cho toàn bộ hệ thống
 - Xử lý input/output và điều hướng menu
 - Kiểm thử và đảm bảo chất lượng sản phẩm
-- Tối ưu hóa trải nghiệm người dùng
+- Phát triển module đăng nhập và đăng ký tài khoản
 
 **Nguyễn Văn Việt:**
-- Phát triển module đăng nhập và đăng ký tài khoản
-- Xử lý xác thực người dùng và quản lý session
-- Tích hợp bảo mật cho hệ thống đăng nhập
+- Xử lý thêm sửa xóa user (admin)
 
 **Nguyễn Quang Đạo:**
 - Thiết kế và phát triển hệ thống ví điểm thưởng
 - Xử lý giao dịch chuyển điểm giữa các ví
-- Đảm bảo tính atomic của các giao dịch
+- Lưu trữ thông tin lịch sử giao dịch
 
 **Nguyễn Viết Tùng:**
 - Thiết kế kiến trúc database và hệ thống lưu trữ
-- Phát triển đầy đủ chức năng admin
 - Tích hợp các module và đảm bảo hoạt động tổng thể
-- Backup/restore và bảo mật dữ liệu
+- Backup/restore
 
 
 ## 🚀 Đặc tả chức năng đầy đủ
@@ -51,18 +48,18 @@ Hệ thống quản lý ví điện tử được phát triển bằng C++ với
 ### A. Tạo mới tài khoản khi đăng ký
 - ✅ **Tạo tài khoản người dùng**: Hệ thống cho phép tạo tài khoản với thông tin đầy đủ
 - ✅ **Nhân viên nhập liệu**: Admin có thể tạo tài khoản hộ người dùng
-- ✅ **Cấu trúc dữ liệu**: Lớp AdminUser quản lý thông tin tài khoản hoàn chỉnh
+- ✅ **Cấu trúc dữ liệu**: Lớp User quản lý thông tin tài khoản hoàn chỉnh
 
 ### B. Lưu trữ dữ liệu
-- ✅ **File database**: Sử dụng file văn bản với định dạng có cấu trúc
+- ✅ **File database**: Sử dụng file binary với định dạng có cấu trúc
 - ✅ **Mật khẩu bảo mật**: Lưu trữ mật khẩu với hash function
 - ✅ **Backup/Restore**: Hệ thống sao lưu và phục hồi dữ liệu hoàn chỉnh
 
 ### C. Quản lý đăng nhập
 - ✅ **Sinh mật khẩu tự động**: Tạo mật khẩu ngẫu nhiên khi admin tạo tài khoản
 - ✅ **Thay đổi mật khẩu**: Người dùng có thể thay đổi mật khẩu
-- ✅ **OTP**: Xác thực hai lớp cho các thao tác quan trọng
-- ✅ **Đăng nhập**: Xác thực người dùng và quản lý session
+- ✅ **TOTP**: Xác thực hai lớp cho các thao tác quan trọng
+- ✅ **Đăng nhập**: Xác thực người dùng
 
 ### D. Phân chia người dùng và chức năng
 - ✅ **Người dùng thông thường**: Truy xuất và điều chỉnh thông tin cá nhân
@@ -147,42 +144,30 @@ Enter your choice:
 1. Chạy chương trình
 2. Chọn "1. Login"
 3. Nhập username: `admin`
-4. Nhập password: `admin`
+4. Nhập password: `admin123
 5. Hệ thống sẽ tự động nhận diện và chuyển đến Admin Dashboard
 
-### Admin Dashboard - Các chức năng đầy đủ
-Sau khi đăng nhập admin thành công, bạn sẽ thấy menu admin với 11 chức năng:
-
-1. **View All Users** - Xem danh sách tất cả người dùng
-2. **Create User** - Tạo tài khoản người dùng mới (tự động sinh mật khẩu)
-3. **Update User** - Cập nhật thông tin người dùng (có OTP validation)
-4. **Delete User** - Xóa tài khoản người dùng
-5. **View All Wallets** - Xem danh sách tất cả ví
-6. **View Wallet Details** - Xem chi tiết ví cụ thể
-7. **View System Statistics** - Thống kê tổng quan hệ thống
-8. **View Transaction Log** - Xem lịch sử giao dịch
-9. **Backup Database** - Sao lưu database
-10. **Restore Database** - Phục hồi database từ backup
-11. **Logout** - Đăng xuất và quay về menu chính
-
-### Thông tin đăng nhập mặc định
-- **Admin Username**: `admin`
-- **Admin Password**: `admin`
 
 ## 📁 Cấu trúc dự án
 
 ```
-├── src/                    # Mã nguồn
+├── deps/                  # Source code các thư viện
+│   └── cpp-otp            # Source code thư viện otp
+├── src/                   # Mã nguồn
 │   ├── main.cpp           # Entry point
-│   ├── database.cpp       # Database logic (đã đơn giản hóa)
+│   ├── database.cpp       # Database logic
+│   ├── user.cpp           # User logic
+│   ├── wallet.cpp         # Wallet logic
 │   └── ui.cpp             # Giao diện CLI
 ├── include/               # Header files
-│   ├── database.hpp
-│   └── ui.h
+│   ├── database.hpp       # header khai báo các function database
+│   ├── hmac.hpp           # header chứa các hàm băm/mã hóa
+│   ├── ui.hpp             # header khai báo các function UI
+│   ├── user.hpp           # header khai báo class User
+│   ├── user.hpp           # header khai báo class Wallet
+│   └── wallet.hpp         # header khai báo class Transaction
 ├── README.md              # File này
-├── DATABASE_README.md     # Tài liệu database chi tiết
-├── SIMPLIFICATION_SUMMARY.md  # Tóm tắt đơn giản hóa
-└── CMakeLists.txt         # Build configuration
+└── CMakeLists.txt         # File cấu hình cmake
 ```
 
 ## 📚 Tài liệu tham khảo
@@ -193,21 +178,19 @@ Sau khi đăng nhập admin thành công, bạn sẽ thấy menu admin với 11 
 3. **ACID Properties**: https://200lab.io/blog/acid-la-gi/ - Tính chất ACID trong database
 
 ### Tài liệu dự án
-- **[DATABASE_README.md](DATABASE_README.md)**: Chi tiết về hệ thống database
 - **Mã nguồn**: Có chú thích đầy đủ, mô tả input/output và thủ tục xử lý
 
 ## 🎯 Đặc điểm kỹ thuật
 
 ### Kiến trúc hệ thống
 - **Design Pattern**: Singleton cho Database, Factory cho UI components
-- **File Format**: Text-based với delimiter `|` cho dễ đọc và debug
+- **File Format**: Binary-based format for fast read/write operations
 - **Security**: Simple checksum validation, password hashing
 - **Error Handling**: Exception handling đầy đủ với try-catch blocks
 
 ### Tính năng bảo mật
 - **Password Hashing**: Mật khẩu được hash trước khi lưu trữ
 - **OTP Validation**: Xác thực hai lớp cho các thao tác quan trọng
-- **Atomic Transactions**: Đảm bảo tính toàn vẹn dữ liệu khi chuyển điểm
 - **Backup/Restore**: Sao lưu định kỳ với timestamp
 
 ### Hiệu năng và tối ưu
