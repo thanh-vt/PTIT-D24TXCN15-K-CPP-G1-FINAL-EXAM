@@ -53,9 +53,6 @@ CMakeUserPresets.json
 database.dat
 *_backup_*
 backups/
-test_backups/
-test_*
-*_test.*
 build/
 
 # Visual studio code settings
