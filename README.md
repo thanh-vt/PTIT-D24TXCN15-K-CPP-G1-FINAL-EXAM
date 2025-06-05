@@ -89,21 +89,43 @@ cd PTIT-D24TXCN15-K-CPP-G1-FINAL-EXAM
 
 ### Bước 2: Biên dịch chương trình
 
-**Cách 1: Sử dụng g++ (Khuyến nghị)**
-```bash
-g++ -std=c++17 src/main.cpp src/ui.cpp src/database.cpp -Iinclude -o ewallet_manager
+**Cách 1: Sử dụng CMake (Khuyến nghị)**
+#### Trên windows (Cài cmake và build tool MinGW)
+```cmd
+cmake -DCMAKE_BUILD_TYPE=Debug -G "MinGW Makefiles" -S . -B .\cmake-build-debug
+cmake --build .\cmake-build-debug
 ```
 
-**Cách 2: Sử dụng CMake**
+#### Trên Linux (Cài cmake và bộ build tool cho distro tương ứng, vd build-essentials cho Debian-based distro, Development Tools cho RHEL-based distro, build-base cho Alpine)
 ```bash
-mkdir build && cd build
-cmake ..
-cmake --build .
+cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -S . -B ./cmake-build-debug
+cmake --build ./cmake-build-debug
+```
+
+**Cách 2: Sử dụng build tool cho platform tương ứng (tự tìm hiểu)**
+- Trên windows: Cài build tool ví dụ như Ninja và viết Ninja file để chỉ định cấu hình compile các file source code và header
+- Trên linux: Cài GNU make (thường có sẵn trên các distro Linux) và viết makefile để chỉ định cấu hình compile các file source code và header
+
+**Cách 3: Sử dụng compiler g++**
+- Trên windows (Cài bộ toolchain build C/C++ vd như MinGW, SygWin, Visual Studio Build Tools hoặc dùng WSL rồi cài toolchain của linux)
+```cmd
+g++ -std=c++17 .\src\*.cpp -Iinclude -static -o ewallet-manager.exe
+```
+
+- Trên Linux (Cài bộ toolchains build C/C+ cho Linux distro tương ứng, vd build-essentials cho Debian-based distro, Development Tools cho RHEL-based distro, build-base cho Alpine)
+```bash
+g++ -std=c++17 ./src/*.cpp -Iinclude -static -o ewallet-manager
 ```
 
 ### Bước 3: Chạy chương trình
+- Trên windows (Cài cmake và build tool MinGW)
+```cmd
+.\ewallet-manager.exe
+```
+
+- Trên Linux (Cài cmake và bộ build tool cho distro tương ứng, vd build-essentials cho Debian-based distro, Development Tools cho RHEL-based distro, build-base cho Alpine)
 ```bash
-./ewallet_manager
+./ewallet-manager
 ```
 
 ## 🎮 Hướng dẫn sử dụng
