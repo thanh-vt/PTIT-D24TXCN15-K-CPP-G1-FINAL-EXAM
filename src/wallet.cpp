@@ -20,6 +20,7 @@ bool Wallet::transfer(Wallet &destination, double amount, const std::string &des
     transaction.toWalletId = destination.getId();
     transaction.amount = amount;
     transaction.timestamp = std::chrono::system_clock::now();
+    transaction.status = "pending";  // Set initial status as pending
     transaction.description = description;
 
     try {
@@ -33,8 +34,11 @@ bool Wallet::transfer(Wallet &destination, double amount, const std::string &des
         // Add to destination
         destination.addBalance(amount);
         transaction.status = "completed";
+        
+        // Add transaction to both wallets
         addTransaction(transaction);
         destination.addTransaction(transaction);
+        
         return true;
     } catch (...) {
         // Rollback
