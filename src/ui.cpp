@@ -612,6 +612,18 @@ void UI::transferPoints(std::shared_ptr<User> user)
         return;
     }
 
+    // Check if user has 2FA enabled and verify the code
+    if (user->has2FA())
+    {
+        std::string otp = getInput("Enter 2FA code to verify transfer: ");
+        if (!user->verify2FA(otp))
+        {
+            std::cout << "2FA verification failed. Transfer cancelled.\n";
+            waitForEnter();
+            return;
+        }
+    }
+
     if (sourceWallet->transfer(*destinationWallet, amount, description))
     {
         // Lay giao dich cuoi cung tu sourceWallet
