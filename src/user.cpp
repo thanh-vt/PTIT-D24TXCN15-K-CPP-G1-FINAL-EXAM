@@ -3,8 +3,10 @@
 #include <sstream>
 #include <iomanip>
 #include <random>
-#include <ctime>
-// #include <cotp/cotp.hpp>  // 2FA not implemented yet
+#include <iostream>
+#include <memory>
+
+#include "cotp/cotp.hpp"
 
 User::User(const std::string &username,
            const std::string &fullname,
