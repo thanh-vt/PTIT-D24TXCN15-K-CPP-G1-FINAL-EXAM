@@ -138,7 +138,8 @@ void UI::showAdminMenu(std::shared_ptr<User> admin)
         std::cout << "2. Create User\n";
         std::cout << "3. Update User\n";
         std::cout << "4. Delete User\n";
-        std::cout << "5. Logout\n\n";
+        std::cout << "5. Transfer Points\n";
+        std::cout << "6. Logout\n\n";
         std::cout << "Enter your choice: ";
 
         int choice;
@@ -160,6 +161,10 @@ void UI::showAdminMenu(std::shared_ptr<User> admin)
             deleteUser();
             break;
         case 5:
+            // Transfer points to other users
+            transferPoints(admin);
+            break;
+        case 6:
             return;
         default:
             std::cout << "Invalid choice. Please try again.\n";
@@ -397,7 +402,6 @@ void UI::updateUser(std::shared_ptr<User> performingAdmin)
     std::cout << "1. Full Name\n";
     std::cout << "2. Date of Birth\n";
     std::cout << "3. Enable/Disable 2FA (for user)\n";
-    std::cout << "4. Adjust Wallet Balance\n";
     std::cout << "Your choice: ";
 
     int choice;
@@ -472,66 +476,6 @@ void UI::updateUser(std::shared_ptr<User> performingAdmin)
                 std::cout << "2FA has been Enabled for user " << userToUpdate->getUsername() << ". Secret Key: " << secretKey << "\n";
                 std::cout << "Please ask the user to save this key and scan QR (if available).\n";
             }
-        }
-        break;
-    }
-    case 4:
-    { // Dieu chinh so du Vi
-        if (!wallet)
-        {
-            std::cout << "No wallet found for this user.\n";
-            break;
-        }
-        std::cout << "Current balance for " << userToUpdate->getUsername() << ": " << wallet->getBalance() << "\n";
-        std::string amountStr = getInput("Enter points to Add (+) or Subtract (-), e.g.: +100 or -50: ");
-        try
-        {
-            double amountAdjustment = std::stod(amountStr);
-            std::string description;
-            std::string logSourceWallet, logDestWallet;
-            double logAmount = amountAdjustment > 0 ? amountAdjustment : -amountAdjustment; // Luon la so duong de ghi log
-
-            if (amountAdjustment > 0)
-            {
-                wallet->addBalance(amountAdjustment);
-                description = "Admin (" + performingAdmin->getUsername() + ") added " + std::to_string(logAmount) + " points.";
-                logSourceWallet = "ADMIN_DEPOSIT";
-                logDestWallet = wallet->getId();
-            }
-            else if (amountAdjustment < 0)
-            {
-                if (wallet->getBalance() < -amountAdjustment)
-                {
-                    std::cout << "Insufficient balance for deduction.\n";
-                    waitForEnter();
-                    return;
-                }
-                wallet->deductBalance(-amountAdjustment);
-                description = "Admin (" + performingAdmin->getUsername() + ") subtracted " + std::to_string(logAmount) + " points.";
-                logSourceWallet = wallet->getId(); // Vi user la nguon bi tru
-                logDestWallet = "ADMIN_WITHDRAW";  // Vi ao admin nhan lai
-            }
-            else
-            {
-                std::cout << "No balance change.\n";
-                break;
-            }
-
-            Transaction loggedTransaction(
-                wallet->generateTransactionId(), // Tao ID giao dich moi
-                logSourceWallet,
-                logDestWallet,
-                logAmount, // So tien giao dich (luon duong)
-                "completed",
-                description);
-            Database::getInstance().addTransaction(loggedTransaction);
-
-            balanceChanged = true;
-            std::cout << "Balance has been adjusted. New balance: " << wallet->getBalance() << "\n";
-        }
-        catch (const std::exception &e)
-        {
-            std::cout << "Error in balance input: " << e.what() << "\n";
         }
         break;
     }
