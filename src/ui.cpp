@@ -139,7 +139,9 @@ void UI::showAdminMenu(std::shared_ptr<User> admin)
         std::cout << "3. Update User\n";
         std::cout << "4. Delete User\n";
         std::cout << "5. Transfer Points\n";
-        std::cout << "6. Logout\n\n";
+        std::cout << "6. Backup Data\n";
+        std::cout << "7. Restore Data\n";
+        std::cout << "8. Logout\n\n";
         std::cout << "Enter your choice: ";
 
         int choice;
@@ -165,6 +167,12 @@ void UI::showAdminMenu(std::shared_ptr<User> admin)
             transferPoints(admin);
             break;
         case 6:
+            backupData();
+            break;
+        case 7:
+            restoreData();
+            break;
+        case 8:
             return;
         default:
             std::cout << "Invalid choice. Please try again.\n";
@@ -612,6 +620,18 @@ void UI::transferPoints(std::shared_ptr<User> user)
         return;
     }
 
+    // Check if user has 2FA enabled and verify the code
+    if (user->has2FA())
+    {
+        std::string otp = getInput("Enter 2FA code to verify transfer: ");
+        if (!user->verify2FA(otp))
+        {
+            std::cout << "2FA verification failed. Transfer cancelled.\n";
+            waitForEnter();
+            return;
+        }
+    }
+
     if (sourceWallet->transfer(*destinationWallet, amount, description))
     {
         // Lay giao dich cuoi cung tu sourceWallet
@@ -937,5 +957,60 @@ void UI::viewProfile(std::shared_ptr<User> user)
         std::cout << "\nNo wallet associated with this account.\n";
     }
 
+    waitForEnter();
+}
+
+void UI::backupData()
+{
+    clearScreen();
+    std::cout << "=== BACKUP DATA ===\n\n";
+    std::cout << "Enter backup directory path (leave empty for default 'backup'): ";
+    std::string backupDir;
+    std::getline(std::cin, backupDir);
+    
+    if (backupDir.empty()) {
+        backupDir = "backup";
+    }
+    
+    Database& db = Database::getInstance();
+    if (db.backupData(backupDir)) {
+        std::cout << "Data backup successful!\n";
+    } else {
+        std::cout << "Data backup failed!\n";
+    }
+    
+    waitForEnter();
+}
+
+void UI::restoreData()
+{
+    clearScreen();
+    std::cout << "=== RESTORE DATA ===\n\n";
+    std::cout << "WARNING: Restore will overwrite current data!\n";
+    std::cout << "Are you sure you want to continue? (y/n): ";
+    std::string confirm;
+    std::getline(std::cin, confirm);
+    
+    if (confirm != "y" && confirm != "Y") {
+        std::cout << "Restore operation cancelled.\n";
+        waitForEnter();
+        return;
+    }
+    
+    std::cout << "Enter backup directory path (leave empty for default 'backup'): ";
+    std::string backupDir;
+    std::getline(std::cin, backupDir);
+    
+    if (backupDir.empty()) {
+        backupDir = "backup";
+    }
+    
+    Database& db = Database::getInstance();
+    if (db.restoreData(backupDir)) {
+        std::cout << "Data restore successful!\n";
+    } else {
+        std::cout << "Data restore failed!\n";
+    }
+    
     waitForEnter();
 }

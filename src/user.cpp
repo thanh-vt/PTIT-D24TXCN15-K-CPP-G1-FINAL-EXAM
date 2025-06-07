@@ -88,14 +88,13 @@ bool User::verifyPassword(const std::string &password) const {
 }
 
 bool User::verify2FA(const std::string &code) const {
-if (!has2FA_) {
+    if (!has2FA_) {
         std::cerr << "2FA is not enabled for this user" << std::endl;
         return false;
     }
 
     try {
-        std::cerr << "Verifying 2FA code: " << code << std::endl;
-        std::cerr << "Using secret key: " << secretKey_ << std::endl;
+        std::cout << "Verifying 2FA code: " << code << std::endl;
 
         // Register SHA1 HMAC algorithm if not already registered
         if (cotp::OTP::otp_algorithm_map.find("SHA1") == cotp::OTP::otp_algorithm_map.end()) {

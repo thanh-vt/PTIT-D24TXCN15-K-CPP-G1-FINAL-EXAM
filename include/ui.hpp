@@ -42,6 +42,10 @@ private:
     void viewBalance(std::shared_ptr<User> user);
     void viewTransactionHistory(std::shared_ptr<User> user);
 
+    // Chuc nang backup/restore
+    void backupData();
+    void restoreData();
+
     // Helper functions
     void clearScreen();
     void waitForEnter();
