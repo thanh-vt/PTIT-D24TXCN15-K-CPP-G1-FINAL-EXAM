@@ -5,8 +5,7 @@
 #include <random>
 #include <iostream>
 #include <memory>
-
-#include "cotp/cotp.hpp"
+#include "cotp.hpp"
 
 User::User(const std::string &username,
            const std::string &fullname,
