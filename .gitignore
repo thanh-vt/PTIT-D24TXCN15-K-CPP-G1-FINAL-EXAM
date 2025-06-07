@@ -27,7 +27,7 @@ x64/
 
 # Libraries
 *.lib
-*.a
+#*.a
 *.la
 *.lai
 *.so
