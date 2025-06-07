@@ -106,12 +106,12 @@ cmake --build ./cmake-build-debug
 **Cách 3: Sử dụng compiler g++**
 - Trên windows (Cài bộ toolchain build C/C++ vd như MinGW, SygWin, Visual Studio Build Tools hoặc dùng WSL rồi cài toolchain của linux)
 ```cmd
-g++ -std=c++17 .\src\*.cpp -Iinclude -static -o ewallet-manager.exe
+g++ -std=c++17 .\src\*.cpp .\deps\libcotp.a -Iinclude -Ideps\cpp-otp -static -o ewallet-manager.exe
 ```
 
 - Trên Linux (Cài bộ toolchains build C/C+ cho Linux distro tương ứng, vd build-essentials cho Debian-based distro, Development Tools cho RHEL-based distro, build-base cho Alpine)
 ```bash
-g++ -std=c++17 ./src/*.cpp -Iinclude -static -o ewallet-manager
+g++ -std=c++17 ./src/*.cpp ./deps/libcotp.a -Iinclude -Ideps/cpp-otp -static -o ewallet-manager
 ```
 
 ### Bước 3: Chạy chương trình
