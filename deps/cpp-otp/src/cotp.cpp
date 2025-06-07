@@ -21,7 +21,9 @@
 #include <random>
 #include <fstream>
 
+#ifdef __GNUC__
 static void init_lib() __attribute__((constructor));
+#endif
 
 static void init_lib() {
     unsigned int seed;
