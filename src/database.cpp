@@ -3,6 +3,9 @@
 #include <iomanip>
 #include <iostream>
 #include <filesystem>
+#include <iomanip>
+#include <sstream>
+#include <chrono>
 
 Database *Database::instance = nullptr;
 
@@ -994,5 +997,159 @@ void Database::setBasePath(const std::filesystem::path &path) {
         }
     } else {
         std::cout << "Existing database loaded successfully!" << std::endl;
+    }
+}
+
+bool Database::backupData(const std::string& backupDir) {
+    try {
+        // Tao thu muc backup neu chua ton tai
+        std::filesystem::path backupPath(backupDir);
+        if (!std::filesystem::exists(backupPath)) {
+            if (!std::filesystem::create_directories(backupPath)) {
+                std::cerr << "Cannot create backup directory: " << backupDir << std::endl;
+                return false;
+            }
+        }
+        
+        // Tao ten file backup voi timestamp
+        auto now = std::chrono::system_clock::now();
+        auto time = std::chrono::system_clock::to_time_t(now);
+        std::stringstream timestamp;
+        timestamp << std::put_time(std::localtime(&time), "%Y%m%d_%H%M%S");
+        
+        // Duong dan file backup
+        std::string backupPrefix = (backupPath / timestamp.str()).string();
+        std::string usersBackup = backupPrefix + "_users.dat";
+        std::string walletsBackup = backupPrefix + "_wallets.dat";
+        std::string transactionsBackup = backupPrefix + "_transactions.dat";
+        
+        // Sao chep file du lieu
+        if (std::filesystem::exists(USERS_FILE)) {
+            std::filesystem::copy_file(USERS_FILE, usersBackup, 
+                                      std::filesystem::copy_options::overwrite_existing);
+        }
+        
+        if (std::filesystem::exists(WALLETS_FILE)) {
+            std::filesystem::copy_file(WALLETS_FILE, walletsBackup, 
+                                      std::filesystem::copy_options::overwrite_existing);
+        }
+        
+        if (std::filesystem::exists(TRANSACTIONS_FILE)) {
+            std::filesystem::copy_file(TRANSACTIONS_FILE, transactionsBackup, 
+                                      std::filesystem::copy_options::overwrite_existing);
+        }
+        
+        std::cout << "Backup successful to: " << backupPrefix << "_*.dat" << std::endl;
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Error during backup: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool Database::restoreData(const std::string& backupDir) {
+    try {
+        std::filesystem::path backupPath(backupDir);
+        if (!std::filesystem::exists(backupPath) || !std::filesystem::is_directory(backupPath)) {
+            std::cerr << "Backup directory does not exist: " << backupDir << std::endl;
+            return false;
+        }
+        
+        // Tim file backup moi nhat
+        std::string latestPrefix;
+        std::time_t latestTime = 0;
+        
+        for (const auto& entry : std::filesystem::directory_iterator(backupPath)) {
+            std::string filename = entry.path().filename().string();
+            if (filename.find("_users.dat") != std::string::npos) {
+                std::string prefix = filename.substr(0, filename.find("_users.dat"));
+                
+                // Chuyen doi prefix thanh timestamp
+                std::tm tm = {};
+                std::istringstream ss(prefix);
+                ss >> std::get_time(&tm, "%Y%m%d_%H%M%S");
+                
+                if (ss.fail()) {
+                    continue;
+                }
+                
+                std::time_t time = std::mktime(&tm);
+                if (time > latestTime) {
+                    latestTime = time;
+                    latestPrefix = prefix;
+                }
+            }
+        }
+        
+        if (latestPrefix.empty()) {
+            std::cerr << "No valid backup files found" << std::endl;
+            return false;
+        }
+        
+        // Duong dan file backup
+        std::string usersBackup = (backupPath / (latestPrefix + "_users.dat")).string();
+        std::string walletsBackup = (backupPath / (latestPrefix + "_wallets.dat")).string();
+        std::string transactionsBackup = (backupPath / (latestPrefix + "_transactions.dat")).string();
+        
+        // Kiem tra file backup ton tai
+        if (!std::filesystem::exists(usersBackup) || 
+            !std::filesystem::exists(walletsBackup) || 
+            !std::filesystem::exists(transactionsBackup)) {
+            std::cerr << "Incomplete backup files" << std::endl;
+            return false;
+        }
+        
+        // Sao luu file hien tai truoc khi restore
+        std::string tempDir = std::filesystem::temp_directory_path().string();
+        std::string tempPrefix = "temp_before_restore_";
+        
+        if (std::filesystem::exists(USERS_FILE)) {
+            std::filesystem::copy_file(USERS_FILE, tempDir + "/" + tempPrefix + "users.dat", 
+                                      std::filesystem::copy_options::overwrite_existing);
+        }
+        
+        if (std::filesystem::exists(WALLETS_FILE)) {
+            std::filesystem::copy_file(WALLETS_FILE, tempDir + "/" + tempPrefix + "wallets.dat", 
+                                      std::filesystem::copy_options::overwrite_existing);
+        }
+        
+        if (std::filesystem::exists(TRANSACTIONS_FILE)) {
+            std::filesystem::copy_file(TRANSACTIONS_FILE, tempDir + "/" + tempPrefix + "transactions.dat", 
+                                      std::filesystem::copy_options::overwrite_existing);
+        }
+        
+        // Restore tu file backup
+        std::filesystem::copy_file(usersBackup, USERS_FILE, 
+                                  std::filesystem::copy_options::overwrite_existing);
+        std::filesystem::copy_file(walletsBackup, WALLETS_FILE, 
+                                  std::filesystem::copy_options::overwrite_existing);
+        std::filesystem::copy_file(transactionsBackup, TRANSACTIONS_FILE, 
+                                  std::filesystem::copy_options::overwrite_existing);
+        
+        // Tai lai du lieu
+        if (!loadFromFiles()) {
+            // Neu tai lai that bai, khoi phuc lai file cu
+            std::filesystem::copy_file(tempDir + "/" + tempPrefix + "users.dat", USERS_FILE, 
+                                      std::filesystem::copy_options::overwrite_existing);
+            std::filesystem::copy_file(tempDir + "/" + tempPrefix + "wallets.dat", WALLETS_FILE, 
+                                      std::filesystem::copy_options::overwrite_existing);
+            std::filesystem::copy_file(tempDir + "/" + tempPrefix + "transactions.dat", TRANSACTIONS_FILE, 
+                                      std::filesystem::copy_options::overwrite_existing);
+            
+            loadFromFiles();
+            std::cerr << "Restore failed, original data has been recovered" << std::endl;
+            return false;
+        }
+        
+        // Xoa file tam
+        std::filesystem::remove(tempDir + "/" + tempPrefix + "users.dat");
+        std::filesystem::remove(tempDir + "/" + tempPrefix + "wallets.dat");
+        std::filesystem::remove(tempDir + "/" + tempPrefix + "transactions.dat");
+        
+        std::cout << "Restore successful from backup: " << latestPrefix << std::endl;
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Error during restore: " << e.what() << std::endl;
+        return false;
     }
 }

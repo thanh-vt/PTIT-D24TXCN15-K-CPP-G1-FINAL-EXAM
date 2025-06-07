@@ -97,4 +97,10 @@ public:
 
     // Database path operations
     void setBasePath(const std::filesystem::path &path);
+
+    // Backup du lieu
+    bool backupData(const std::string& backupDir);
+    
+    // Restore du lieu
+    bool restoreData(const std::string& backupDir);
 };
